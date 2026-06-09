@@ -187,9 +187,8 @@ p {
 
 .join-panel {
   display: grid;
-  grid-template-columns: minmax(170px, 1fr) auto minmax(130px, 220px) auto;
-  gap: 10px;
-  align-items: end;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 12px;
   padding: 12px;
   background: var(--panel-soft);
@@ -199,9 +198,47 @@ p {
   display: none;
 }
 
-.join-panel div {
+.join-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.join-card h2 {
+  margin: 4px 0 5px;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.join-card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.join-card label {
   display: grid;
   gap: 5px;
+}
+
+.host-card {
+  border-color: rgba(255, 75, 75, 0.34);
+  background: linear-gradient(180deg, #ffffff, #fff5f5);
+}
+
+.guest-card {
+  border-color: rgba(109, 191, 233, 0.48);
+  background: linear-gradient(180deg, #ffffff, #eef9ff);
+}
+
+.guest-card button {
+  background: linear-gradient(180deg, #d6f3ff, var(--sky-strong));
+  border-color: rgba(109, 191, 233, 0.54);
+  box-shadow: 0 8px 18px rgba(109, 191, 233, 0.22);
 }
 
 .table-shell {
@@ -264,6 +301,12 @@ p {
   background: #ffffff;
   border: 1px solid var(--red);
   box-shadow: none;
+}
+
+#lobbyButton {
+  grid-column: 1 / -1;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ff7878, var(--red-deep));
 }
 
 .rules-note {
@@ -441,8 +484,20 @@ p {
   text-align: center;
 }
 
+.card.action.freeze {
+  background: linear-gradient(160deg, #e8f8ff, #7fcfff 48%, #2f83e6);
+  border-color: rgba(47, 131, 230, 0.72);
+  color: #071a33;
+}
+
 .player-message {
   min-height: 20px;
+}
+
+.target-button {
+  width: 100%;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ff7878, var(--red-deep));
 }
 
 .toast {

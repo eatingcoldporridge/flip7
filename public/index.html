@@ -24,16 +24,31 @@
       </header>
 
       <section class="join-panel" id="joinPanel">
-        <div>
-          <span>PLAYER</span>
-          <input id="playerNameInput" type="text" maxlength="16" autocomplete="off" placeholder="이름" />
-        </div>
-        <button id="createRoomButton" type="button">방 만들기</button>
-        <div>
-          <span>ROOM</span>
-          <input id="roomCodeInput" type="text" maxlength="6" autocomplete="off" placeholder="ABCD" />
-        </div>
-        <button id="joinRoomButton" type="button">방 참가</button>
+        <article class="join-card host-card">
+          <div>
+            <span>게임 호스트</span>
+            <h2>새 방 만들기</h2>
+            <p>내가 방을 만들고 친구에게 코드를 공유합니다.</p>
+          </div>
+          <label>
+            <span>이름</span>
+            <input id="playerNameInput" type="text" maxlength="16" autocomplete="off" placeholder="내 이름" />
+          </label>
+          <button id="createRoomButton" type="button">방 만들기</button>
+        </article>
+
+        <article class="join-card guest-card">
+          <div>
+            <span>코드를 받은 참여자</span>
+            <h2>친구 방 참여</h2>
+            <p>호스트가 알려준 4자리 방 코드를 입력합니다.</p>
+          </div>
+          <label>
+            <span>코드</span>
+            <input id="roomCodeInput" type="text" maxlength="6" autocomplete="off" placeholder="ABCD" />
+          </label>
+          <button id="joinRoomButton" type="button">방 참여하기</button>
+        </article>
       </section>
 
       <section class="table-shell">
@@ -49,6 +64,7 @@
             <button id="hitButton" type="button">카드 뽑기</button>
             <button id="stayButton" type="button">스톱</button>
             <button id="nextRoundButton" type="button">다음 라운드</button>
+            <button id="lobbyButton" type="button">로비로 가기</button>
           </div>
 
           <section class="rules-note">

@@ -10,6 +10,7 @@ const ui = {
   hitButton: document.getElementById("hitButton"),
   stayButton: document.getElementById("stayButton"),
   nextRoundButton: document.getElementById("nextRoundButton"),
+  lobbyButton: document.getElementById("lobbyButton"),
   phaseLabel: document.getElementById("phaseLabel"),
   turnLabel: document.getElementById("turnLabel"),
   hintText: document.getElementById("hintText"),
@@ -109,6 +110,7 @@ function statusText(status) {
 function cardClass(card) {
   if (card.kind === "number") return "number";
   if (card.kind === "modifier") return card.op === "x2" ? "x2" : "modifier";
+  if (card.action === "freeze") return "action freeze";
   return "action";
 }
 
@@ -118,6 +120,9 @@ function render() {
   const self = hasRoom ? room.players.find((player) => player.id === room.selfId) : null;
   const isHost = hasRoom && room.hostId === room.selfId;
   const isMyTurn = hasRoom && room.turnId === room.selfId && self?.status === "active";
+  const pendingAction = hasRoom ? room.pendingAction : null;
+  const isFreezePending = pendingAction?.type === "freeze";
+  const isFreezeActor = isFreezePending && pendingAction.actorId === room.selfId;
 
   ui.joinPanel.classList.toggle("connected", hasRoom);
   ui.roomCode.textContent = hasRoom ? room.code : "----";
@@ -133,21 +138,29 @@ function render() {
     ui.turnLabel.textContent = `${room.players.length}명 접속`;
     ui.hintText.textContent = isHost ? "방장은 게임 시작을 누를 수 있습니다." : "방장이 게임을 시작할 때까지 기다리세요.";
   } else if (room.phase === "playing") {
-    ui.turnLabel.textContent = isMyTurn ? "당신의 차례입니다." : `${room.turnName}님의 차례`;
-    ui.hintText.textContent = isMyTurn ? "카드를 뽑거나 지금 점수를 은행에 넣고 스톱하세요." : "다른 플레이어의 선택을 기다리는 중입니다.";
+    if (isFreezePending) {
+      ui.turnLabel.textContent = isFreezeActor ? "Freeze 대상 선택" : `${pendingAction.actorName}님이 Freeze 대상을 고르는 중`;
+      ui.hintText.textContent = isFreezeActor ? "스톱시킬 플레이어의 버튼을 선택하세요." : "Freeze 카드가 해결될 때까지 기다리세요.";
+    } else {
+      ui.turnLabel.textContent = isMyTurn ? "당신의 차례입니다." : `${room.turnName}님의 차례`;
+      ui.hintText.textContent = isMyTurn ? "카드를 뽑거나 지금 점수를 은행에 넣고 스톱하세요." : "다른 플레이어의 선택을 기다리는 중입니다.";
+    }
   } else if (room.phase === "roundEnd") {
     ui.turnLabel.textContent = "라운드 종료";
-    ui.hintText.textContent = "다음 라운드로 넘어갈 수 있습니다.";
+    ui.hintText.textContent = "다음 라운드로 자동 진행합니다.";
   } else if (room.phase === "gameEnd") {
     const winner = room.players.find((player) => player.id === room.winnerId);
     ui.turnLabel.textContent = `${winner?.name || "승자"} 승리`;
-    ui.hintText.textContent = `${room.winningScore}점 이상 도달. 새 게임은 새 방을 만들어 시작하세요.`;
+    ui.hintText.textContent = `${room.winningScore}점 이상 도달. 로비로 돌아가 같은 방에서 새 게임을 시작할 수 있습니다.`;
   }
 
   ui.startButton.disabled = !hasRoom || !isHost || room.phase !== "lobby" || room.players.length < 2;
-  ui.hitButton.disabled = !isMyTurn || room.phase !== "playing";
-  ui.stayButton.disabled = !isMyTurn || room.phase !== "playing";
+  ui.hitButton.disabled = !isMyTurn || room.phase !== "playing" || Boolean(pendingAction);
+  ui.stayButton.disabled = !isMyTurn || room.phase !== "playing" || Boolean(pendingAction);
   ui.nextRoundButton.disabled = !hasRoom || room.phase !== "roundEnd";
+  ui.lobbyButton.disabled = !hasRoom || room.phase !== "gameEnd";
+  ui.nextRoundButton.hidden = !hasRoom || room.phase !== "roundEnd";
+  ui.lobbyButton.hidden = !hasRoom || room.phase !== "gameEnd";
 
   if (hasRoom) {
     renderPlayers(room);
@@ -157,6 +170,7 @@ function render() {
 
 function renderPlayers(room) {
   ui.playersGrid.innerHTML = "";
+  const canResolveFreeze = room.pendingAction?.type === "freeze" && room.pendingAction.actorId === room.selfId;
 
   for (const player of room.players) {
     const card = document.createElement("article");
@@ -192,7 +206,18 @@ function renderPlayers(room) {
     message.className = "player-message";
     message.textContent = player.message || (player.connected ? " " : "연결이 끊어졌습니다.");
 
-    card.append(head, round, cards, message);
+    card.append(head, round, cards);
+
+    if (canResolveFreeze && player.connected && player.status === "active") {
+      const targetButton = document.createElement("button");
+      targetButton.type = "button";
+      targetButton.className = "target-button";
+      targetButton.textContent = `${player.name} 스톱`;
+      targetButton.addEventListener("click", () => send("resolveFreeze", { targetId: player.id }));
+      card.appendChild(targetButton);
+    }
+
+    card.appendChild(message);
     ui.playersGrid.appendChild(card);
   }
 }
@@ -233,6 +258,7 @@ ui.startButton.addEventListener("click", () => send("startGame"));
 ui.hitButton.addEventListener("click", () => send("hit"));
 ui.stayButton.addEventListener("click", () => send("stay"));
 ui.nextRoundButton.addEventListener("click", () => send("nextRound"));
+ui.lobbyButton.addEventListener("click", () => send("returnLobby"));
 ui.copyRoomButton.addEventListener("click", async () => {
   if (!state.room) return;
   try {
