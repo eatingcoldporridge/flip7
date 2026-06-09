@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flip 7 Realtime Table</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">7</span>
+          <div>
+            <h1>Flip 7 Table</h1>
+            <p>Realtime push-your-luck room</p>
+          </div>
+        </div>
+        <section class="room-status">
+          <span>방 코드</span>
+          <strong id="roomCode">----</strong>
+          <button id="copyRoomButton" type="button">복사</button>
+        </section>
+      </header>
+
+      <section class="join-panel" id="joinPanel">
+        <div>
+          <span>PLAYER</span>
+          <input id="playerNameInput" type="text" maxlength="16" autocomplete="off" placeholder="이름" />
+        </div>
+        <button id="createRoomButton" type="button">방 만들기</button>
+        <div>
+          <span>ROOM</span>
+          <input id="roomCodeInput" type="text" maxlength="6" autocomplete="off" placeholder="ABCD" />
+        </div>
+        <button id="joinRoomButton" type="button">방 참가</button>
+      </section>
+
+      <section class="table-shell">
+        <aside class="control-panel">
+          <div class="phase-card">
+            <span id="phaseLabel">LOBBY</span>
+            <strong id="turnLabel">친구를 초대하세요.</strong>
+            <p id="hintText">방을 만들고 코드를 공유하면 같은 테이블에 접속합니다.</p>
+          </div>
+
+          <div class="actions">
+            <button id="startButton" type="button">게임 시작</button>
+            <button id="hitButton" type="button">카드 뽑기</button>
+            <button id="stayButton" type="button">스톱</button>
+            <button id="nextRoundButton" type="button">다음 라운드</button>
+          </div>
+
+          <section class="rules-note">
+            <span>RULE CORE</span>
+            <p>같은 숫자를 다시 뽑으면 버스트. 서로 다른 숫자 7장을 모으면 Flip 7 보너스와 함께 라운드가 끝납니다.</p>
+          </section>
+
+          <section class="log-card">
+            <span>TABLE LOG</span>
+            <ol id="logList"></ol>
+          </section>
+        </aside>
+
+        <section class="board">
+          <div class="deck-card">
+            <span>DECK</span>
+            <strong id="deckCount">0</strong>
+            <small>남은 카드</small>
+          </div>
+          <div class="players-grid" id="playersGrid"></div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast hidden" id="toast" role="status"></div>
+    <script src="./config.js"></script>
+    <script src="./client.js"></script>
+  </body>
+</html>
