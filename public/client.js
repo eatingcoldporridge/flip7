@@ -36,6 +36,8 @@ const state = {
   reconnectTimer: null,
 };
 
+const quickEmojis = new Set(["🤑", "🥳", "😭", "🙄", "🤭", "😆", "☠️", "☠"]);
+
 function websocketUrl() {
   const configuredUrl = String(window.FLIP7_WS_URL || "").trim();
   if (configuredUrl) return configuredUrl;
@@ -273,13 +275,15 @@ function renderChat(messages, selfId) {
 
   for (const message of messages) {
     const item = document.createElement("article");
-    item.className = `chat-message ${message.playerId === selfId ? "self" : ""}`;
+    const textValue = String(message.text || "").trim();
+    const isEmojiOnly = quickEmojis.has(textValue);
+    item.className = `chat-message ${message.playerId === selfId ? "self" : ""} ${isEmojiOnly ? "emoji-only" : ""}`;
 
     const name = document.createElement("strong");
     name.textContent = message.name;
 
     const text = document.createElement("p");
-    text.textContent = message.text;
+    text.textContent = textValue;
 
     item.append(name, text);
     ui.chatList.appendChild(item);
