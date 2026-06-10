@@ -34,6 +34,9 @@ const state = {
   selfId: "",
   room: null,
   reconnectTimer: null,
+  reservation: null,
+  reservationRound: 0,
+  roundEndSnackRound: 0,
 };
 
 const quickEmojis = new Set(["🤑", "🥳", "😭", "🙄", "🤭", "😆", "☠️", "☠"]);
@@ -107,6 +110,13 @@ function phaseText(phase) {
   }[phase] || "WAITING";
 }
 
+function actionLabel(action) {
+  return {
+    hit: "카드 뽑기",
+    stay: "스톱",
+  }[action] || action;
+}
+
 function statusText(status) {
   return {
     waiting: "대기",
@@ -122,7 +132,23 @@ function cardClass(card) {
   if (card.kind === "number") return "number";
   if (card.kind === "modifier") return card.op === "x2" ? "x2" : "modifier";
   if (card.action === "freeze") return "action freeze";
+  if (card.action === "flip3") return "action flip3";
+  if (card.action === "secondChance") return "action second-chance";
   return "action";
+}
+
+function cardLabel(card) {
+  if (card.action === "freeze") return "스톱";
+  if (card.action === "flip3") return "플립 3";
+  if (card.action === "secondChance") return "두번째 기회";
+  return card.label;
+}
+
+function cancelReservation(message = "") {
+  if (!state.reservation) return;
+  state.reservation = null;
+  state.reservationRound = 0;
+  if (message) showToast(message);
 }
 
 function render() {
@@ -134,7 +160,29 @@ function render() {
   const pendingAction = hasRoom ? room.pendingAction : null;
   const isFreezePending = pendingAction?.type === "freeze";
   const isFlip3Pending = pendingAction?.type === "flip3";
-  const isPendingActor = pendingAction?.actorId === room.selfId;
+  const isPendingActor = hasRoom && pendingAction?.actorId === room.selfId;
+  const canActNow = isMyTurn && hasRoom && room.phase === "playing" && !pendingAction;
+  const canReserve = hasRoom && room.phase === "playing" && !isMyTurn && self?.status === "active" && !pendingAction;
+
+  if (!hasRoom || room.phase !== "playing" || state.reservationRound !== room.round) {
+    cancelReservation();
+  } else if (!self || self.status !== "active") {
+    cancelReservation("행동할 수 없는 상태가 되어 예약이 취소되었습니다.");
+  }
+
+  if (hasRoom && room.phase === "roundEnd" && state.roundEndSnackRound !== room.round) {
+    state.roundEndSnackRound = room.round;
+    cancelReservation();
+    showRoundEndSnack(room.round);
+  }
+
+  if (state.reservation && canActNow) {
+    const reservedAction = state.reservation;
+    state.reservation = null;
+    state.reservationRound = 0;
+    window.setTimeout(() => send(reservedAction), 0);
+    showToast(`${actionLabel(reservedAction)} 예약을 실행합니다.`);
+  }
 
   ui.joinPanel.classList.toggle("connected", hasRoom);
   ui.app.classList.toggle("in-room", hasRoom);
@@ -169,11 +217,11 @@ function render() {
       }
     } else {
       ui.turnLabel.textContent = isMyTurn ? "당신의 차례입니다." : `${room.turnName}님의 차례`;
-      ui.hintText.textContent = isMyTurn ? "카드를 뽑거나 지금 점수를 은행에 넣고 스톱하세요." : "다른 플레이어의 선택을 기다리는 중입니다.";
+      ui.hintText.textContent = isMyTurn ? "카드를 뽑거나 지금 점수를 은행에 넣고 스톱하세요." : "기다리는 동안 카드 뽑기나 스톱을 1회 예약할 수 있습니다.";
     }
   } else if (room.phase === "roundEnd") {
     ui.turnLabel.textContent = "라운드 종료";
-    ui.hintText.textContent = "다음 라운드로 자동 진행합니다.";
+    ui.hintText.textContent = "스낵바가 사라지면 다음 라운드가 시작됩니다.";
   } else if (room.phase === "gameEnd") {
     const winner = room.players.find((player) => player.id === room.winnerId);
     ui.turnLabel.textContent = `${winner?.name || "승자"} 승리`;
@@ -181,11 +229,15 @@ function render() {
   }
 
   ui.startButton.disabled = !hasRoom || !isHost || room.phase !== "lobby" || room.players.length < 2;
-  ui.hitButton.disabled = !isMyTurn || room.phase !== "playing" || Boolean(pendingAction);
-  ui.stayButton.disabled = !isMyTurn || room.phase !== "playing" || Boolean(pendingAction);
-  ui.nextRoundButton.disabled = !hasRoom || room.phase !== "roundEnd";
+  ui.hitButton.disabled = !(canActNow || canReserve);
+  ui.stayButton.disabled = !(canActNow || canReserve);
+  ui.hitButton.classList.toggle("reserved", state.reservation === "hit");
+  ui.stayButton.classList.toggle("reserved", state.reservation === "stay");
+  ui.hitButton.textContent = state.reservation === "hit" ? "카드 뽑기 예약됨" : "카드 뽑기";
+  ui.stayButton.textContent = state.reservation === "stay" ? "스톱 예약됨" : "스톱";
+  ui.nextRoundButton.disabled = true;
   ui.lobbyButton.disabled = !hasRoom || room.phase !== "gameEnd";
-  ui.nextRoundButton.hidden = !hasRoom || room.phase !== "roundEnd";
+  ui.nextRoundButton.hidden = true;
   ui.lobbyButton.hidden = !hasRoom || room.phase !== "gameEnd";
 
   if (hasRoom) {
@@ -228,7 +280,7 @@ function renderPlayers(room) {
     for (const owned of player.cards) {
       const item = document.createElement("span");
       item.className = `card ${cardClass(owned)}`;
-      item.textContent = owned.label;
+      item.textContent = cardLabel(owned);
       cards.appendChild(item);
     }
 
@@ -300,11 +352,57 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function showToast(message) {
+function hideToast() {
+  window.clearTimeout(showToast.timer);
+  if (ui.toast.classList.contains("hidden")) return;
+  ui.toast.classList.add("hidden");
+  const onDismiss = showToast.onDismiss;
+  showToast.onDismiss = null;
+  showToast.locked = false;
+  if (onDismiss) onDismiss();
+}
+
+function showToast(message, options = {}) {
+  if (showToast.locked && !options.force) return;
   ui.toast.textContent = message;
   ui.toast.classList.remove("hidden");
   window.clearTimeout(showToast.timer);
-  showToast.timer = window.setTimeout(() => ui.toast.classList.add("hidden"), 2400);
+  showToast.onDismiss = options.onDismiss || null;
+  showToast.locked = Boolean(options.lock);
+  showToast.timer = window.setTimeout(hideToast, options.duration || 2400);
+}
+
+function showRoundEndSnack(round) {
+  showToast("라운드가 종료되었습니다.", {
+    duration: 3000,
+    lock: true,
+    onDismiss: () => {
+      if (state.room?.phase === "roundEnd" && state.room.round === round) {
+        send("nextRound");
+      }
+    },
+  });
+}
+
+function handleTurnAction(action) {
+  const room = state.room;
+  const self = room?.players.find((player) => player.id === room.selfId);
+  const isMyTurn = Boolean(room && room.turnId === room.selfId && self?.status === "active");
+  const canActNow = Boolean(room && room.phase === "playing" && isMyTurn && !room.pendingAction);
+  const canReserve = Boolean(room && room.phase === "playing" && !isMyTurn && self?.status === "active" && !room.pendingAction);
+
+  if (canActNow) {
+    cancelReservation();
+    send(action);
+    return;
+  }
+
+  if (canReserve) {
+    state.reservation = action;
+    state.reservationRound = room.round;
+    showToast(`${actionLabel(action)} 예약됨`);
+    render();
+  }
 }
 
 ui.playerNameInput.value = localStorage.getItem("flip7PlayerName") || "";
@@ -315,10 +413,11 @@ ui.joinRoomButton.addEventListener("click", () => send("joinRoom", {
   code: ui.roomCodeInput.value,
 }));
 ui.startButton.addEventListener("click", () => send("startGame"));
-ui.hitButton.addEventListener("click", () => send("hit"));
-ui.stayButton.addEventListener("click", () => send("stay"));
+ui.hitButton.addEventListener("click", () => handleTurnAction("hit"));
+ui.stayButton.addEventListener("click", () => handleTurnAction("stay"));
 ui.nextRoundButton.addEventListener("click", () => send("nextRound"));
 ui.lobbyButton.addEventListener("click", () => send("returnLobby"));
+ui.toast.addEventListener("click", hideToast);
 ui.chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const text = ui.chatInput.value.trim();

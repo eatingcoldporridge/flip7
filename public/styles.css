@@ -331,6 +331,13 @@ p {
   box-shadow: 0 8px 18px rgba(109, 191, 233, 0.22);
 }
 
+.actions button.reserved {
+  border-color: rgba(47, 131, 230, 0.86);
+  box-shadow:
+    0 0 0 3px rgba(127, 207, 255, 0.34),
+    0 10px 22px rgba(47, 131, 230, 0.22);
+}
+
 #nextRoundButton {
   grid-column: 1 / -1;
   color: var(--ink);
@@ -740,16 +747,44 @@ p {
 }
 
 .card.action {
-  background: linear-gradient(160deg, #ff8a8a, var(--red));
+  align-items: end;
+  justify-items: center;
+  padding: 5px 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.78)),
+    linear-gradient(160deg, #ff8a8a, var(--red));
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   border-color: rgba(217, 40, 40, 0.72);
-  font-size: 12px;
+  font-size: 9px;
+  line-height: 1.05;
   text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
 .card.action.freeze {
-  background: linear-gradient(160deg, #e8f8ff, #7fcfff 48%, #2f83e6);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    url("./assets/FREEZE.svg");
   border-color: rgba(47, 131, 230, 0.72);
   color: #071a33;
+}
+
+.card.action.flip3 {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    url("./assets/FLIP3.svg");
+  border-color: rgba(255, 112, 112, 0.78);
+  color: #210d12;
+}
+
+.card.action.second-chance {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    url("./assets/SECONDE_CHANCE.svg");
+  border-color: rgba(242, 206, 90, 0.84);
+  color: #2d2410;
 }
 
 .player-message {
@@ -775,6 +810,8 @@ p {
   background: #ffffff;
   box-shadow: 0 16px 38px rgba(33, 67, 99, 0.2);
   font-weight: 800;
+  cursor: pointer;
+  user-select: none;
 }
 
 .toast.hidden {

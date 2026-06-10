@@ -408,11 +408,6 @@ function finishRound(room) {
   room.dealerIndex = (room.dealerIndex + 1) % room.players.length;
   pushLog(room, "라운드가 종료되었습니다.");
   checkGameEnd(room);
-
-  if (room.phase === "roundEnd") {
-    pushLog(room, "다음 라운드로 자동 진행합니다.");
-    startRound(room);
-  }
 }
 
 function checkRoundEnd(room) {
@@ -638,7 +633,6 @@ function handleMessage(ws, raw) {
 
   if (message.type === "nextRound") {
     if (room.phase !== "roundEnd") {
-      sendError(ws, "아직 다음 라운드로 갈 수 없습니다.");
       return;
     }
     startRound(room);

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_레이어_2" data-name="레이어 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 43.99 60">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #54c0fc;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #fff9bd;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-4 {
+        fill: #173e8a;
+      }
+    </style>
+  </defs>
+  <g id="_레이어_1-2" data-name="레이어 1">
+    <rect class="cls-1" width="43.99" height="60" rx="8" ry="8"/>
+    <rect class="cls-3" x="1.99" y="2" width="39.99" height="56" rx="6.51" ry="6.51"/>
+    <rect class="cls-2" x="2.02" y="17.32" width="39.96" height="25.1"/>
+    <path class="cls-4" d="M25.28,8.24v-.58c0-1.7-1.38-3.08-3.08-3.08h-.41c-1.7,0-3.08,1.38-3.08,3.08v.58h-.31v2.81c0,1.98,1.61,3.59,3.59,3.59s3.59-1.61,3.59-3.59v-2.81h-.31ZM19.71,7.66c0-1.15.93-2.08,2.08-2.08h.41c1.15,0,2.08.93,2.08,2.08v.58h-4.57v-.58Z"/>
+    <polygon class="cls-1" points="22.6 12.74 21.39 12.74 21.69 10.15 22.3 10.15 22.6 12.74"/>
+    <circle class="cls-1" cx="22" cy="9.72" r=".6"/>
+  </g>
+</svg>
