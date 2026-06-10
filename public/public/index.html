@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flip 7 Realtime Table</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">7</span>
+          <div>
+            <h1>Flip 7 Table</h1>
+            <p>Realtime push-your-luck room</p>
+          </div>
+        </div>
+        <section class="room-status" id="roomStatus" hidden>
+          <span>방 코드</span>
+          <strong id="roomCode">----</strong>
+          <button id="copyRoomButton" type="button">복사</button>
+        </section>
+      </header>
+
+      <section class="join-panel" id="joinPanel">
+        <article class="join-card host-card">
+          <div>
+            <span>게임 호스트</span>
+            <h2>새 방 만들기</h2>
+            <p>내가 방을 만들고 친구에게 코드를 공유합니다.</p>
+          </div>
+          <label>
+            <span>이름</span>
+            <input id="playerNameInput" type="text" maxlength="16" autocomplete="off" placeholder="내 이름" />
+          </label>
+          <button id="createRoomButton" type="button">방 만들기</button>
+        </article>
+
+        <article class="join-card guest-card">
+          <div>
+            <span>코드를 받은 참여자</span>
+            <h2>친구 방 참여</h2>
+            <p>호스트가 알려준 4자리 방 코드를 입력합니다.</p>
+          </div>
+          <label>
+            <span>코드</span>
+            <input id="roomCodeInput" type="text" maxlength="6" autocomplete="off" placeholder="ABCD" />
+          </label>
+          <button id="joinRoomButton" type="button">방 참여하기</button>
+        </article>
+      </section>
+
+      <section class="table-shell" id="tableShell" hidden>
+        <aside class="control-panel">
+          <div class="phase-card">
+            <span id="phaseLabel">LOBBY</span>
+            <strong id="turnLabel">친구를 초대하세요.</strong>
+            <p id="hintText">방을 만들고 코드를 공유하면 같은 테이블에 접속합니다.</p>
+          </div>
+
+          <div class="actions">
+            <button id="startButton" type="button">게임 시작</button>
+            <button id="hitButton" type="button">카드 뽑기</button>
+            <button id="stayButton" type="button">스톱</button>
+            <button id="nextRoundButton" type="button">다음 라운드</button>
+            <button id="lobbyButton" type="button">로비로 가기</button>
+          </div>
+
+          <details class="chat-card info-toggle" open>
+            <summary class="chat-head">
+              <span>TABLE CHAT</span>
+            </summary>
+            <div class="chat-list" id="chatList"></div>
+            <form class="chat-form" id="chatForm">
+              <input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="메시지 입력" />
+              <button id="chatSendButton" type="submit" aria-label="채팅 전송">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
+                </svg>
+              </button>
+            </form>
+          </details>
+
+          <details class="rules-note info-toggle">
+            <summary><span>RULE CORE</span></summary>
+            <p>같은 숫자를 다시 뽑으면 버스트. 서로 다른 숫자 7장을 모으면 Flip 7 보너스와 함께 라운드가 끝납니다.</p>
+          </details>
+
+          <details class="log-card info-toggle">
+            <summary><span>TABLE LOG</span></summary>
+            <ol id="logList"></ol>
+          </details>
+        </aside>
+
+        <section class="board">
+          <div class="deck-card">
+            <span>DECK</span>
+            <strong id="deckCount">0</strong>
+            <small>남은 카드</small>
+          </div>
+          <div class="players-grid" id="playersGrid"></div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast hidden" id="toast" role="status"></div>
+    <script src="./config.js"></script>
+    <script src="./client.js"></script>
+  </body>
+</html>
