@@ -16,7 +16,7 @@
             <p>Realtime push-your-luck room</p>
           </div>
         </div>
-        <section class="room-status">
+        <section class="room-status" id="roomStatus" hidden>
           <span>방 코드</span>
           <strong id="roomCode">----</strong>
           <button id="copyRoomButton" type="button">복사</button>
@@ -51,7 +51,7 @@
         </article>
       </section>
 
-      <section class="table-shell">
+      <section class="table-shell" id="tableShell" hidden>
         <aside class="control-panel">
           <div class="phase-card">
             <span id="phaseLabel">LOBBY</span>
@@ -72,14 +72,25 @@
               <span>TABLE CHAT</span>
             </summary>
             <div class="chat-list" id="chatList"></div>
-            <form class="chat-form" id="chatForm">
-              <input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="메시지 입력" />
-              <button id="chatSendButton" type="submit" aria-label="채팅 전송">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
-                </svg>
-              </button>
-            </form>
+            <div class="chat-composer">
+              <form class="chat-form" id="chatForm">
+                <input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="메시지 입력" />
+                <button id="chatSendButton" type="submit" aria-label="채팅 전송">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
+                  </svg>
+                </button>
+              </form>
+              <div class="emoji-row" id="emojiRow" aria-label="빠른 이모지">
+                <button type="button" data-emoji="🤑" aria-label="이모지 전송 🤑">🤑</button>
+                <button type="button" data-emoji="🥳" aria-label="이모지 전송 🥳">🥳</button>
+                <button type="button" data-emoji="😭" aria-label="이모지 전송 😭">😭</button>
+                <button type="button" data-emoji="🙄" aria-label="이모지 전송 🙄">🙄</button>
+                <button type="button" data-emoji="🤭" aria-label="이모지 전송 🤭">🤭</button>
+                <button type="button" data-emoji="😆" aria-label="이모지 전송 😆">😆</button>
+                <button type="button" data-emoji="☠️" aria-label="이모지 전송 ☠️">☠️</button>
+              </div>
+            </div>
           </details>
 
           <details class="rules-note info-toggle">

@@ -20,6 +20,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -196,6 +200,11 @@ p {
   background: var(--panel-soft);
 }
 
+.app:not(.in-room) .join-panel {
+  max-width: 880px;
+  margin: 18px auto 0;
+}
+
 .join-panel.connected {
   display: none;
 }
@@ -273,7 +282,7 @@ p {
 
 .control-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(190px, 1fr) auto auto;
+  grid-template-rows: auto auto auto auto auto;
   align-content: start;
   gap: 10px;
   min-height: 640px;
@@ -341,8 +350,10 @@ p {
 }
 
 .chat-card {
+  --chat-list-max-height: 178px;
   display: grid;
-  grid-template-rows: auto minmax(120px, 1fr) auto;
+  grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto;
+  align-self: start;
   gap: 10px;
   min-height: 0;
   border: 0;
@@ -364,8 +375,10 @@ p {
   display: grid;
   align-content: start;
   gap: 7px;
-  min-height: 120px;
-  overflow: auto;
+  min-height: 132px;
+  max-height: var(--chat-list-max-height);
+  overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 8px;
   padding: 8px;
   background: rgba(255, 255, 255, 0.58);
@@ -408,6 +421,11 @@ p {
 .chat-empty {
   color: var(--muted);
   background: transparent;
+}
+
+.chat-composer {
+  display: grid;
+  gap: 6px;
 }
 
 .chat-form {
@@ -456,6 +474,40 @@ p {
   stroke-width: 2.6;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.emoji-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-inline: 2px;
+}
+
+.emoji-row button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.emoji-row button:hover:not(:disabled) {
+  background: #d4f0ff;
+  box-shadow: 0 6px 14px rgba(47, 131, 230, 0.16);
+  transform: translateY(-1px);
+}
+
+.emoji-row button:disabled {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.38;
 }
 
 .info-toggle {
@@ -540,8 +592,12 @@ p {
 
 .player-card {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 10px;
+  height: auto;
   min-height: 220px;
+  overflow: visible;
   padding: 12px;
   background: #ffffff;
 }
@@ -575,6 +631,10 @@ p {
   gap: 10px;
 }
 
+.player-head > div:first-child {
+  min-width: 0;
+}
+
 .player-head strong {
   display: block;
   font-size: 18px;
@@ -586,6 +646,14 @@ p {
   color: var(--muted);
   font-size: 11px;
   font-weight: 900;
+}
+
+.player-metrics {
+  display: flex;
+  align-items: stretch;
+  justify-content: end;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .score {
@@ -605,26 +673,31 @@ p {
 }
 
 .round-score {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  display: grid;
+  align-content: center;
+  justify-items: end;
+  min-width: 90px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 6px 8px;
+  text-align: right;
   background: #eef9ff;
 }
 
 .round-score strong {
   color: var(--red-deep);
-  font-size: 22px;
+  font-size: 24px;
+  line-height: 1;
 }
 
 .cards {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+  height: auto;
   min-height: 76px;
   align-content: start;
+  overflow: visible;
 }
 
 .card {
@@ -737,8 +810,9 @@ p {
   }
 
   .chat-card {
+    --chat-list-max-height: 150px;
     order: 4;
-    grid-template-rows: auto minmax(92px, 150px) auto;
+    grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto;
   }
 
   .rules-note {
