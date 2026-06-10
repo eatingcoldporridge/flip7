@@ -352,7 +352,7 @@ p {
 .chat-card {
   --chat-list-max-height: 204px;
   display: grid;
-  grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto;
+  grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto auto;
   align-self: start;
   gap: 10px;
   min-height: 0;
@@ -469,6 +469,40 @@ p {
   stroke-width: 2.6;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.emoji-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-inline: 2px;
+}
+
+.emoji-row button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.emoji-row button:hover:not(:disabled) {
+  background: #d4f0ff;
+  box-shadow: 0 6px 14px rgba(47, 131, 230, 0.16);
+  transform: translateY(-1px);
+}
+
+.emoji-row button:disabled {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.38;
 }
 
 .info-toggle {
@@ -773,7 +807,7 @@ p {
   .chat-card {
     --chat-list-max-height: 188px;
     order: 4;
-    grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto;
+    grid-template-rows: auto minmax(0, var(--chat-list-max-height)) auto auto;
   }
 
   .rules-note {

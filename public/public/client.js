@@ -24,6 +24,8 @@ const ui = {
   chatForm: document.getElementById("chatForm"),
   chatInput: document.getElementById("chatInput"),
   chatSendButton: document.getElementById("chatSendButton"),
+  emojiRow: document.getElementById("emojiRow"),
+  emojiButtons: [...document.querySelectorAll("#emojiRow button")],
   toast: document.getElementById("toast"),
 };
 
@@ -141,6 +143,9 @@ function render() {
   ui.deckCount.textContent = hasRoom ? String(room.deckCount) : "0";
   ui.chatInput.disabled = !hasRoom;
   ui.chatSendButton.disabled = !hasRoom;
+  for (const button of ui.emojiButtons) {
+    button.disabled = !hasRoom;
+  }
 
   if (!hasRoom) {
     ui.turnLabel.textContent = "친구를 초대하세요.";
@@ -316,6 +321,12 @@ ui.chatForm.addEventListener("submit", (event) => {
   if (!text) return;
   send("sendChat", { text });
   ui.chatInput.value = "";
+});
+
+ui.emojiRow.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-emoji]");
+  if (!button || button.disabled) return;
+  send("sendChat", { text: button.dataset.emoji });
 });
 ui.copyRoomButton.addEventListener("click", async () => {
   if (!state.room) return;
