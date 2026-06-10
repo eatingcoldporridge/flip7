@@ -1,10 +1,7 @@
 const ui = {
-  app: document.querySelector(".app"),
   roomCode: document.getElementById("roomCode"),
-  roomStatus: document.getElementById("roomStatus"),
   copyRoomButton: document.getElementById("copyRoomButton"),
   joinPanel: document.getElementById("joinPanel"),
-  tableShell: document.getElementById("tableShell"),
   playerNameInput: document.getElementById("playerNameInput"),
   roomCodeInput: document.getElementById("roomCodeInput"),
   createRoomButton: document.getElementById("createRoomButton"),
@@ -24,8 +21,6 @@ const ui = {
   chatForm: document.getElementById("chatForm"),
   chatInput: document.getElementById("chatInput"),
   chatSendButton: document.getElementById("chatSendButton"),
-  emojiRow: document.getElementById("emojiRow"),
-  emojiButtons: [...document.querySelectorAll("#emojiRow button")],
   toast: document.getElementById("toast"),
 };
 
@@ -135,17 +130,11 @@ function render() {
   const isPendingActor = pendingAction?.actorId === room.selfId;
 
   ui.joinPanel.classList.toggle("connected", hasRoom);
-  ui.app.classList.toggle("in-room", hasRoom);
-  ui.roomStatus.hidden = !hasRoom;
-  ui.tableShell.hidden = !hasRoom;
   ui.roomCode.textContent = hasRoom ? room.code : "----";
   ui.phaseLabel.textContent = hasRoom ? phaseText(room.phase) : "LOBBY";
   ui.deckCount.textContent = hasRoom ? String(room.deckCount) : "0";
   ui.chatInput.disabled = !hasRoom;
   ui.chatSendButton.disabled = !hasRoom;
-  for (const button of ui.emojiButtons) {
-    button.disabled = !hasRoom;
-  }
 
   if (!hasRoom) {
     ui.turnLabel.textContent = "친구를 초대하세요.";
@@ -209,17 +198,15 @@ function renderPlayers(room) {
         <strong>${escapeHtml(player.name)}</strong>
         <span>${statusText(player.status)}${player.secondChance ? " · Second Chance" : ""}</span>
       </div>
-      <div class="player-metrics">
-        <div class="round-score">
-          <span>이번 라운드</span>
-          <strong>${player.roundScore}</strong>
-        </div>
-        <div class="score">
-          <span>총점</span>
-          <b>${player.score}</b>
-        </div>
+      <div class="score">
+        <span>총점</span>
+        <b>${player.score}</b>
       </div>
     `;
+
+    const round = document.createElement("div");
+    round.className = "round-score";
+    round.innerHTML = `<span>이번 라운드</span><strong>${player.roundScore}</strong>`;
 
     const cards = document.createElement("div");
     cards.className = "cards";
@@ -234,7 +221,7 @@ function renderPlayers(room) {
     message.className = "player-message";
     message.textContent = player.message || (player.connected ? " " : "연결이 끊어졌습니다.");
 
-    card.append(head, cards);
+    card.append(head, round, cards);
 
     if (canResolveAction && player.connected && player.status === "active") {
       const targetButton = document.createElement("button");
@@ -321,12 +308,6 @@ ui.chatForm.addEventListener("submit", (event) => {
   if (!text) return;
   send("sendChat", { text });
   ui.chatInput.value = "";
-});
-
-ui.emojiRow.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-emoji]");
-  if (!button || button.disabled) return;
-  send("sendChat", { text: button.dataset.emoji });
 });
 ui.copyRoomButton.addEventListener("click", async () => {
   if (!state.room) return;
