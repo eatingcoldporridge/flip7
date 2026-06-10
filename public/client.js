@@ -17,6 +17,10 @@ const ui = {
   deckCount: document.getElementById("deckCount"),
   playersGrid: document.getElementById("playersGrid"),
   logList: document.getElementById("logList"),
+  chatList: document.getElementById("chatList"),
+  chatForm: document.getElementById("chatForm"),
+  chatInput: document.getElementById("chatInput"),
+  chatSendButton: document.getElementById("chatSendButton"),
   toast: document.getElementById("toast"),
 };
 
@@ -122,25 +126,34 @@ function render() {
   const isMyTurn = hasRoom && room.turnId === room.selfId && self?.status === "active";
   const pendingAction = hasRoom ? room.pendingAction : null;
   const isFreezePending = pendingAction?.type === "freeze";
-  const isFreezeActor = isFreezePending && pendingAction.actorId === room.selfId;
+  const isFlip3Pending = pendingAction?.type === "flip3";
+  const isPendingActor = pendingAction?.actorId === room.selfId;
 
   ui.joinPanel.classList.toggle("connected", hasRoom);
   ui.roomCode.textContent = hasRoom ? room.code : "----";
   ui.phaseLabel.textContent = hasRoom ? phaseText(room.phase) : "LOBBY";
   ui.deckCount.textContent = hasRoom ? String(room.deckCount) : "0";
+  ui.chatInput.disabled = !hasRoom;
+  ui.chatSendButton.disabled = !hasRoom;
 
   if (!hasRoom) {
     ui.turnLabel.textContent = "친구를 초대하세요.";
     ui.hintText.textContent = "방을 만들고 코드를 공유하면 같은 테이블에 접속합니다.";
     ui.playersGrid.innerHTML = "";
     ui.logList.innerHTML = "";
+    ui.chatList.innerHTML = `<p class="chat-empty">방에 입장하면 채팅을 사용할 수 있습니다.</p>`;
   } else if (room.phase === "lobby") {
     ui.turnLabel.textContent = `${room.players.length}명 접속`;
     ui.hintText.textContent = isHost ? "방장은 게임 시작을 누를 수 있습니다." : "방장이 게임을 시작할 때까지 기다리세요.";
   } else if (room.phase === "playing") {
-    if (isFreezePending) {
-      ui.turnLabel.textContent = isFreezeActor ? "Freeze 대상 선택" : `${pendingAction.actorName}님이 Freeze 대상을 고르는 중`;
-      ui.hintText.textContent = isFreezeActor ? "스톱시킬 플레이어의 버튼을 선택하세요." : "Freeze 카드가 해결될 때까지 기다리세요.";
+    if (pendingAction) {
+      if (isFreezePending) {
+        ui.turnLabel.textContent = isPendingActor ? "Freeze 대상 선택" : `${pendingAction.actorName}님이 Freeze 대상을 고르는 중`;
+        ui.hintText.textContent = isPendingActor ? "스톱시킬 플레이어의 버튼을 선택하세요." : "Freeze 카드가 해결될 때까지 기다리세요.";
+      } else if (isFlip3Pending) {
+        ui.turnLabel.textContent = isPendingActor ? "Flip 3 대상 선택" : `${pendingAction.actorName}님이 Flip 3 대상을 고르는 중`;
+        ui.hintText.textContent = isPendingActor ? "카드 3장을 받게 할 플레이어를 선택하세요. 자신도 선택할 수 있습니다." : "Flip 3 카드가 해결될 때까지 기다리세요.";
+      }
     } else {
       ui.turnLabel.textContent = isMyTurn ? "당신의 차례입니다." : `${room.turnName}님의 차례`;
       ui.hintText.textContent = isMyTurn ? "카드를 뽑거나 지금 점수를 은행에 넣고 스톱하세요." : "다른 플레이어의 선택을 기다리는 중입니다.";
@@ -165,12 +178,14 @@ function render() {
   if (hasRoom) {
     renderPlayers(room);
     renderLog(room.log);
+    renderChat(room.chat || [], room.selfId);
   }
 }
 
 function renderPlayers(room) {
   ui.playersGrid.innerHTML = "";
-  const canResolveFreeze = room.pendingAction?.type === "freeze" && room.pendingAction.actorId === room.selfId;
+  const pendingAction = room.pendingAction;
+  const canResolveAction = pendingAction && pendingAction.actorId === room.selfId;
 
   for (const player of room.players) {
     const card = document.createElement("article");
@@ -208,12 +223,17 @@ function renderPlayers(room) {
 
     card.append(head, round, cards);
 
-    if (canResolveFreeze && player.connected && player.status === "active") {
+    if (canResolveAction && player.connected && player.status === "active") {
       const targetButton = document.createElement("button");
       targetButton.type = "button";
       targetButton.className = "target-button";
-      targetButton.textContent = `${player.name} 스톱`;
-      targetButton.addEventListener("click", () => send("resolveFreeze", { targetId: player.id }));
+      if (pendingAction.type === "freeze") {
+        targetButton.textContent = `${player.name} 스톱`;
+        targetButton.addEventListener("click", () => send("resolveFreeze", { targetId: player.id }));
+      } else if (pendingAction.type === "flip3") {
+        targetButton.textContent = `${player.name} 카드 3장`;
+        targetButton.addEventListener("click", () => send("resolveFlip3", { targetId: player.id }));
+      }
       card.appendChild(targetButton);
     }
 
@@ -229,6 +249,29 @@ function renderLog(log) {
     li.textContent = item;
     ui.logList.appendChild(li);
   }
+}
+
+function renderChat(messages, selfId) {
+  ui.chatList.innerHTML = "";
+  if (!messages.length) {
+    ui.chatList.innerHTML = `<p class="chat-empty">아직 메시지가 없습니다.</p>`;
+    return;
+  }
+
+  for (const message of messages) {
+    const item = document.createElement("article");
+    item.className = `chat-message ${message.playerId === selfId ? "self" : ""}`;
+
+    const name = document.createElement("strong");
+    name.textContent = message.name;
+
+    const text = document.createElement("p");
+    text.textContent = message.text;
+
+    item.append(name, text);
+    ui.chatList.appendChild(item);
+  }
+  ui.chatList.scrollTop = ui.chatList.scrollHeight;
 }
 
 function escapeHtml(value) {
@@ -259,6 +302,13 @@ ui.hitButton.addEventListener("click", () => send("hit"));
 ui.stayButton.addEventListener("click", () => send("stay"));
 ui.nextRoundButton.addEventListener("click", () => send("nextRound"));
 ui.lobbyButton.addEventListener("click", () => send("returnLobby"));
+ui.chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = ui.chatInput.value.trim();
+  if (!text) return;
+  send("sendChat", { text });
+  ui.chatInput.value = "";
+});
 ui.copyRoomButton.addEventListener("click", async () => {
   if (!state.room) return;
   try {

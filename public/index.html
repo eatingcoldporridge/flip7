@@ -67,15 +67,30 @@
             <button id="lobbyButton" type="button">로비로 가기</button>
           </div>
 
-          <section class="rules-note">
-            <span>RULE CORE</span>
-            <p>같은 숫자를 다시 뽑으면 버스트. 서로 다른 숫자 7장을 모으면 Flip 7 보너스와 함께 라운드가 끝납니다.</p>
-          </section>
+          <details class="chat-card info-toggle" open>
+            <summary class="chat-head">
+              <span>TABLE CHAT</span>
+            </summary>
+            <div class="chat-list" id="chatList"></div>
+            <form class="chat-form" id="chatForm">
+              <input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="메시지 입력" />
+              <button id="chatSendButton" type="submit" aria-label="채팅 전송">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
+                </svg>
+              </button>
+            </form>
+          </details>
 
-          <section class="log-card">
-            <span>TABLE LOG</span>
+          <details class="rules-note info-toggle">
+            <summary><span>RULE CORE</span></summary>
+            <p>같은 숫자를 다시 뽑으면 버스트. 서로 다른 숫자 7장을 모으면 Flip 7 보너스와 함께 라운드가 끝납니다.</p>
+          </details>
+
+          <details class="log-card info-toggle">
+            <summary><span>TABLE LOG</span></summary>
             <ol id="logList"></ol>
-          </section>
+          </details>
         </aside>
 
         <section class="board">

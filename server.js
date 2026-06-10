@@ -142,6 +142,7 @@ function createRoom(hostId, hostName) {
     winnerId: null,
     pendingAction: null,
     pendingActions: [],
+    chat: [],
     log: ["방이 생성되었습니다."],
   };
   rooms.set(code, room);
@@ -170,6 +171,21 @@ function pushLog(room, text) {
   room.log = room.log.slice(0, 12);
 }
 
+function pushChat(room, player, text) {
+  const message = String(text || "").trim().slice(0, 160);
+  if (!message) return false;
+
+  room.chat.push({
+    id: id("chat_"),
+    playerId: player.id,
+    name: player.name,
+    text: message,
+    at: Date.now(),
+  });
+  room.chat = room.chat.slice(-40);
+  return true;
+}
+
 function activateNextPendingAction(room) {
   room.pendingAction = room.pendingActions.shift() || null;
   if (!room.pendingAction) return;
@@ -183,7 +199,11 @@ function activateNextPendingAction(room) {
   }
 
   room.turnIndex = actorIndex;
-  actor.message = "Freeze: 스톱시킬 플레이어를 선택하세요.";
+  if (room.pendingAction.type === "freeze") {
+    actor.message = "Freeze: 스톱시킬 플레이어를 선택하세요.";
+  } else if (room.pendingAction.type === "flip3") {
+    actor.message = "Flip 3: 카드 3장을 받게 할 플레이어를 선택하세요.";
+  }
 }
 
 function queueFreezeAction(room, player, source = "turn") {
@@ -194,6 +214,17 @@ function queueFreezeAction(room, player, source = "turn") {
     source,
   });
   pushLog(room, `${player.name}님이 Freeze 카드를 뽑았습니다. 대상 선택 대기 중.`);
+  if (!room.pendingAction) activateNextPendingAction(room);
+}
+
+function queueFlip3Action(room, player, source = "turn") {
+  room.pendingActions.push({
+    type: "flip3",
+    actorId: player.id,
+    actorName: player.name,
+    source,
+  });
+  pushLog(room, `${player.name}님이 Flip 3 카드를 뽑았습니다. 대상 선택 대기 중.`);
   if (!room.pendingAction) activateNextPendingAction(room);
 }
 
@@ -281,17 +312,13 @@ function giveCard(room, player, card, options = {}) {
   }
 
   if (card.action === "freeze") {
-    queueFreezeAction(room, player, options.initial ? "initial" : "turn");
+    queueFreezeAction(room, player, options.initial ? "initial" : options.forced ? "forced" : "turn");
     return;
   }
 
   if (card.action === "flip3") {
-    player.message = "Flip 3: 추가 카드 3장을 받습니다.";
-    pushLog(room, `${player.name}님이 Flip 3을 받았습니다.`);
-    for (let i = 0; i < 3 && player.status === "active"; i += 1) {
-      giveCard(room, player, drawCard(room), { forced: true });
-      if (room.pendingAction) break;
-    }
+    queueFlip3Action(room, player, options.initial ? "initial" : options.forced ? "forced" : "turn");
+    return;
   }
 
   if (options.forced) updateRoundScore(player);
@@ -325,6 +352,8 @@ function resetRoundPlayer(player) {
 }
 
 function startRound(room) {
+  if (room.players.every((player) => !player.connected)) return;
+
   room.phase = "playing";
   room.round += 1;
   room.deck = createDeck();
@@ -371,6 +400,7 @@ function advanceTurn(room) {
 
 function finishRound(room) {
   if (room.phase !== "playing") return;
+  if (room.players.every((player) => !player.connected)) return;
   if (room.pendingAction) return;
   if (activePlayers(room).length > 0) return;
 
@@ -402,6 +432,20 @@ function checkGameEnd(room) {
   }
 }
 
+function continueAfterPendingAction(room, pending, roundBeforeAction) {
+  activateNextPendingAction(room);
+  if (room.pendingAction) return;
+  if (room.phase !== "playing") return;
+  if (room.round !== roundBeforeAction) return;
+
+  if (pending.source === "turn") {
+    advanceTurn(room);
+  } else {
+    normalizeTurn(room);
+  }
+  checkRoundEnd(room);
+}
+
 function resolveFreeze(room, actorId, targetId) {
   const pending = room.pendingAction;
   if (!pending || pending.type !== "freeze") return "선택할 Freeze 카드가 없습니다.";
@@ -413,18 +457,34 @@ function resolveFreeze(room, actorId, targetId) {
   if (!target || !target.connected || target.status !== "active") return "스톱시킬 수 있는 대상이 아닙니다.";
 
   room.pendingAction = null;
+  const roundBeforeAction = room.round;
   bankPlayer(room, target, `${actor.name}님의 Freeze.`);
   pushLog(room, `${actor.name}님이 ${target.name}님을 Freeze로 스톱시켰습니다.`);
 
-  activateNextPendingAction(room);
-  if (room.pendingAction) return "";
+  continueAfterPendingAction(room, pending, roundBeforeAction);
+  return "";
+}
 
-  if (pending.source === "turn") {
-    advanceTurn(room);
-  } else {
-    normalizeTurn(room);
+function resolveFlip3(room, actorId, targetId) {
+  const pending = room.pendingAction;
+  if (!pending || pending.type !== "flip3") return "선택할 Flip 3 카드가 없습니다.";
+  if (pending.actorId !== actorId) return "Flip 3 카드를 뽑은 플레이어만 대상을 선택할 수 있습니다.";
+
+  const actor = findPlayer(room, actorId);
+  const target = findPlayer(room, targetId);
+  if (!actor || actor.status !== "active") return "Flip 3를 사용할 수 없는 상태입니다.";
+  if (!target || !target.connected || target.status !== "active") return "카드 3장을 받을 수 있는 대상이 아닙니다.";
+
+  room.pendingAction = null;
+  const roundBeforeAction = room.round;
+  target.message = `${actor.name}님의 Flip 3: 카드 3장을 받습니다.`;
+  pushLog(room, `${actor.name}님이 ${target.name}님에게 Flip 3를 사용했습니다.`);
+
+  for (let i = 0; i < 3 && room.phase === "playing" && target.status === "active"; i += 1) {
+    giveCard(room, target, drawCard(room), { forced: true });
   }
-  checkRoundEnd(room);
+
+  continueAfterPendingAction(room, pending, roundBeforeAction);
   return "";
 }
 
@@ -465,6 +525,7 @@ function sanitizeRoom(room, viewerId) {
     winnerId: room.winnerId,
     winningScore: WINNING_SCORE,
     pendingAction: room.pendingAction,
+    chat: room.chat,
     log: room.log,
     players: room.players.map((player) => ({
       id: player.id,
@@ -595,8 +656,30 @@ function handleMessage(ws, raw) {
     return;
   }
 
+  if (message.type === "sendChat") {
+    const player = findPlayer(room, client.id);
+    if (!player || !player.connected) {
+      sendError(ws, "채팅을 보낼 수 없는 상태입니다.");
+      return;
+    }
+    if (pushChat(room, player, message.text)) {
+      broadcast(room);
+    }
+    return;
+  }
+
   if (message.type === "resolveFreeze") {
     const error = resolveFreeze(room, client.id, message.targetId);
+    if (error) {
+      sendError(ws, error);
+      return;
+    }
+    broadcast(room);
+    return;
+  }
+
+  if (message.type === "resolveFlip3") {
+    const error = resolveFlip3(room, client.id, message.targetId);
     if (error) {
       sendError(ws, error);
       return;
@@ -660,6 +743,10 @@ wss.on("connection", (ws) => {
         activateNextPendingAction(room);
       }
       pushLog(room, `${player.name}님이 연결을 종료했습니다.`);
+      if (room.players.every((member) => !member.connected)) {
+        rooms.delete(room.code);
+        return;
+      }
       normalizeTurn(room);
       checkRoundEnd(room);
       broadcast(room);

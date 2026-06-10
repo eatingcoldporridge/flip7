@@ -95,6 +95,7 @@ input:focus {
 .board,
 .player-card,
 .phase-card,
+.chat-card,
 .rules-note,
 .log-card {
   border: 1px solid var(--line);
@@ -159,6 +160,7 @@ p {
 
 .room-status span,
 .phase-card span,
+.chat-card span,
 .rules-note span,
 .log-card span,
 .join-panel span,
@@ -226,8 +228,23 @@ p {
 }
 
 .host-card {
-  border-color: rgba(255, 75, 75, 0.34);
-  background: linear-gradient(180deg, #ffffff, #fff5f5);
+  border-color: rgba(47, 131, 230, 0.42);
+  background: linear-gradient(180deg, #ffffff, #eef9ff);
+}
+
+.host-card button,
+#chatSendButton {
+  background: linear-gradient(180deg, #d4f0ff, #7fcfff);
+  border-color: rgba(47, 131, 230, 0.58);
+  color: #071a33;
+  box-shadow: 0 8px 18px rgba(47, 131, 230, 0.2);
+}
+
+.host-card button:hover:not(:disabled),
+#chatSendButton:hover:not(:disabled) {
+  background: linear-gradient(180deg, #d4f0ff, #7fcfff);
+  border-color: rgba(47, 131, 230, 0.66);
+  box-shadow: 0 10px 22px rgba(47, 131, 230, 0.24);
 }
 
 .guest-card {
@@ -236,9 +253,15 @@ p {
 }
 
 .guest-card button {
-  background: linear-gradient(180deg, #d6f3ff, var(--sky-strong));
-  border-color: rgba(109, 191, 233, 0.54);
-  box-shadow: 0 8px 18px rgba(109, 191, 233, 0.22);
+  background: linear-gradient(180deg, #ffef8a, var(--yellow-strong));
+  border-color: rgba(242, 206, 90, 0.58);
+  box-shadow: 0 8px 18px rgba(242, 206, 90, 0.22);
+}
+
+.guest-card button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffef8a, var(--yellow-strong));
+  border-color: rgba(242, 206, 90, 0.68);
+  box-shadow: 0 10px 22px rgba(242, 206, 90, 0.26);
 }
 
 .table-shell {
@@ -250,13 +273,17 @@ p {
 
 .control-panel {
   display: grid;
+  grid-template-rows: auto auto minmax(190px, 1fr) auto auto;
   align-content: start;
   gap: 10px;
+  min-height: 640px;
+  min-width: 0;
   padding: 10px;
   background: rgba(255, 255, 255, 0.92);
 }
 
 .phase-card,
+.chat-card,
 .rules-note,
 .log-card {
   padding: 12px;
@@ -311,6 +338,158 @@ p {
 
 .rules-note {
   background: #fffdf0;
+}
+
+.chat-card {
+  display: grid;
+  grid-template-rows: auto minmax(120px, 1fr) auto;
+  gap: 10px;
+  min-height: 0;
+  border: 0;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(232, 248, 255, 0.9));
+  box-shadow: 0 16px 34px rgba(47, 131, 230, 0.14);
+}
+
+.chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.chat-list {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-height: 120px;
+  overflow: auto;
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.chat-message {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.chat-message strong {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.chat-message p,
+.chat-empty {
+  max-width: 100%;
+  margin: 0;
+  border-radius: 8px;
+  padding: 7px 9px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.35;
+  box-shadow: 0 6px 14px rgba(33, 67, 99, 0.08);
+  overflow-wrap: anywhere;
+}
+
+.chat-message.self {
+  justify-items: end;
+}
+
+.chat-message.self p {
+  background: #e8f8ff;
+}
+
+.chat-empty {
+  color: var(--muted);
+  background: transparent;
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 8px;
+}
+
+.chat-form input {
+  min-width: 0;
+  border-color: transparent;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(143, 184, 218, 0.36);
+}
+
+.chat-form input:hover,
+.chat-form input:focus {
+  border-color: transparent;
+  box-shadow:
+    inset 0 0 0 1px rgba(47, 131, 230, 0.42),
+    0 0 0 3px rgba(109, 191, 233, 0.18);
+}
+
+.chat-form button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  min-width: 42px;
+  padding: 0;
+}
+
+#chatSendButton {
+  border-color: rgba(47, 131, 230, 0.54);
+  color: #ffffff;
+}
+
+#chatSendButton:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(47, 131, 230, 0.24);
+}
+
+#chatSendButton svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.info-toggle {
+  overflow: hidden;
+}
+
+.info-toggle summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.info-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.info-toggle summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--red-deep);
+  background: #ffffff;
+  font-weight: 1000;
+}
+
+.info-toggle[open] summary::after {
+  content: "-";
 }
 
 .log-card ol {
@@ -531,11 +710,58 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .table-shell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .control-panel {
+    display: contents;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border: 0;
+  }
+
+  .phase-card {
+    order: 1;
+  }
+
+  .actions {
+    order: 2;
+  }
+
+  .board {
+    order: 3;
+  }
+
+  .chat-card {
+    order: 4;
+    grid-template-rows: auto minmax(92px, 150px) auto;
+  }
+
+  .rules-note {
+    order: 5;
+  }
+
+  .log-card {
+    order: 6;
+  }
+
   .room-status {
     justify-content: start;
   }
 
   .board {
     min-height: auto;
+  }
+
+  .deck-card {
+    margin-bottom: 8px;
+  }
+
+  .players-grid {
+    grid-template-columns: 1fr;
   }
 }
