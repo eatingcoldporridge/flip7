@@ -747,11 +747,11 @@ p {
 }
 
 .card.action {
-  align-items: end;
+  align-items: center;
   justify-items: center;
-  padding: 5px 4px;
+  padding: 4px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.78)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     linear-gradient(160deg, #ff8a8a, var(--red));
   background-position: center;
   background-repeat: no-repeat;
@@ -765,7 +765,7 @@ p {
 
 .card.action.freeze {
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/FREEZE.svg");
   border-color: rgba(47, 131, 230, 0.72);
   color: #071a33;
@@ -773,7 +773,7 @@ p {
 
 .card.action.flip3 {
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/FLIP3.svg");
   border-color: rgba(255, 112, 112, 0.78);
   color: #210d12;
@@ -781,7 +781,7 @@ p {
 
 .card.action.second-chance {
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.76)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/SECONDE_CHANCE.svg");
   border-color: rgba(242, 206, 90, 0.84);
   color: #2d2410;
@@ -800,18 +800,37 @@ p {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 22px;
+  bottom: max(22px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  z-index: 10;
-  border: 1px solid var(--red);
-  border-radius: 999px;
-  padding: 10px 14px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 34px;
+  width: min(760px, calc(100vw - 32px));
+  border: 0;
+  border-radius: 16px;
+  padding: 28px 32px;
   color: var(--ink);
   background: #ffffff;
-  box-shadow: 0 16px 38px rgba(33, 67, 99, 0.2);
-  font-weight: 800;
+  box-shadow: 0 22px 70px rgba(15, 35, 55, 0.3);
+  font-size: clamp(20px, 3vw, 34px);
+  font-weight: 500;
+  text-align: left;
   cursor: pointer;
   user-select: none;
+}
+
+.toast::after {
+  content: "확인";
+  flex: 0 0 auto;
+  color: #0094ff;
+  font-weight: 500;
+}
+
+.toast:hover:not(:disabled) {
+  transform: translate(-50%, -1px);
+  box-shadow: 0 26px 78px rgba(15, 35, 55, 0.34);
 }
 
 .toast.hidden {
@@ -883,5 +902,14 @@ p {
 
   .players-grid {
     grid-template-columns: 1fr;
+  }
+
+  .toast {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: calc(100vw - 24px);
+    gap: 18px;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 20px;
   }
 }
