@@ -93,7 +93,6 @@ input:focus {
   padding: 16px;
 }
 
-.topbar,
 .join-panel,
 .control-panel,
 .board,
@@ -111,10 +110,10 @@ input:focus {
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
   gap: 14px;
-  padding: 12px;
-  background: linear-gradient(180deg, #ffffff, #f6fbff);
+  padding: 8px 4px;
+  background: transparent;
 }
 
 .brand {
@@ -156,10 +155,14 @@ p {
 }
 
 .room-status {
-  display: grid;
-  grid-template-columns: auto auto auto;
+  display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
+  border: 2px solid #22e75a;
+  border-radius: 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .room-status span,
@@ -176,7 +179,7 @@ p {
 }
 
 .room-status strong {
-  min-width: 78px;
+  min-width: 62px;
   color: var(--red-deep);
   font-size: 28px;
   line-height: 1;
@@ -300,6 +303,17 @@ p {
 
 .phase-card {
   background: linear-gradient(180deg, #ffffff, #eef9ff);
+}
+
+.phase-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.phase-copy > div:first-child {
+  min-width: 0;
 }
 
 .phase-card strong {
@@ -925,6 +939,11 @@ p {
     order: 1;
   }
 
+  .phase-copy {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
   .actions {
     order: 2;
   }
@@ -948,6 +967,7 @@ p {
 
   .room-status {
     justify-content: start;
+    max-width: 100%;
   }
 
   .board {

@@ -16,11 +16,6 @@
             <p>Realtime push-your-luck room</p>
           </div>
         </div>
-        <section class="room-status" id="roomStatus" hidden>
-          <span>방 코드</span>
-          <strong id="roomCode">----</strong>
-          <button id="copyRoomButton" type="button">복사</button>
-        </section>
       </header>
 
       <section class="join-panel" id="joinPanel">
@@ -54,9 +49,18 @@
       <section class="table-shell" id="tableShell" hidden>
         <aside class="control-panel">
           <div class="phase-card">
-            <span id="phaseLabel">LOBBY</span>
-            <strong id="turnLabel">친구를 초대하세요.</strong>
-            <p id="hintText">방을 만들고 코드를 공유하면 같은 테이블에 접속합니다.</p>
+            <div class="phase-copy">
+              <div>
+                <span id="phaseLabel">LOBBY</span>
+                <strong id="turnLabel">친구를 초대하세요.</strong>
+                <p id="hintText">방을 만들고 코드를 공유하면 같은 테이블에 접속합니다.</p>
+              </div>
+              <section class="room-status" id="roomStatus" hidden>
+                <span>방 코드</span>
+                <strong id="roomCode">----</strong>
+                <button id="copyRoomButton" type="button">복사</button>
+              </section>
+            </div>
           </div>
 
           <div class="actions">
