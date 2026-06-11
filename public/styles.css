@@ -311,6 +311,13 @@ p {
   min-height: 44px;
 }
 
+#startButton,
+#hitButton,
+#stayButton,
+#copyRoomButton {
+  font-size: 14px;
+}
+
 #hitButton {
   background: linear-gradient(180deg, #ffef8a, var(--yellow-strong));
   border-color: rgba(242, 206, 90, 0.58);
@@ -935,6 +942,13 @@ p {
   .actions button {
     min-width: 0;
     padding-inline: 8px;
+  }
+
+  #startButton,
+  #hitButton,
+  #stayButton,
+  #copyRoomButton {
+    font-size: 10px;
   }
 
   .board {
