@@ -37,6 +37,7 @@ const state = {
   reservation: null,
   reservationRound: 0,
   roundEndSnackRound: 0,
+  victoryToastKey: "",
 };
 
 function websocketUrl() {
@@ -166,6 +167,7 @@ function render() {
   const isPendingActor = hasRoom && pendingAction?.actorId === room.selfId;
   const canActNow = isMyTurn && hasRoom && room.phase === "playing" && !pendingAction;
   const canReserve = hasRoom && room.phase === "playing" && !isMyTurn && self?.status === "active" && !pendingAction;
+  const connectedCount = hasRoom ? room.players.filter((player) => player.connected).length : 0;
 
   if (!hasRoom || room.phase !== "playing" || state.reservationRound !== room.round) {
     cancelReservation();
@@ -177,6 +179,16 @@ function render() {
     state.roundEndSnackRound = room.round;
     cancelReservation();
     showRoundEndSnack(room.round);
+  }
+
+  if (hasRoom && room.phase === "gameEnd") {
+    const key = `${room.code}:${room.round}:${room.winnerId}`;
+    if (room.winnerId === room.selfId && state.victoryToastKey !== key) {
+      state.victoryToastKey = key;
+      showToast("👑이겼습니다!", { duration: 3000, force: true });
+    }
+  } else {
+    state.victoryToastKey = "";
   }
 
   if (state.reservation && canActNow) {
@@ -207,7 +219,7 @@ function render() {
     ui.logList.innerHTML = "";
     ui.chatList.innerHTML = `<p class="chat-empty">방에 입장하면 채팅을 사용할 수 있습니다.</p>`;
   } else if (room.phase === "lobby") {
-    ui.turnLabel.textContent = `${room.players.length}명 접속`;
+    ui.turnLabel.textContent = `${connectedCount}명 접속`;
     ui.hintText.textContent = isHost ? "방장은 게임 시작을 누를 수 있습니다." : "방장이 게임을 시작할 때까지 기다리세요.";
   } else if (room.phase === "playing") {
     if (pendingAction) {
@@ -231,7 +243,7 @@ function render() {
     ui.hintText.textContent = `${room.winningScore}점 이상 도달. 로비로 돌아가 같은 방에서 새 게임을 시작할 수 있습니다.`;
   }
 
-  ui.startButton.disabled = !hasRoom || !isHost || room.phase !== "lobby" || room.players.length < 2;
+  ui.startButton.disabled = !hasRoom || !isHost || room.phase !== "lobby" || connectedCount < 2;
   ui.hitButton.disabled = !(canActNow || canReserve);
   ui.stayButton.disabled = !(canActNow || canReserve);
   ui.hitButton.classList.toggle("reserved", state.reservation === "hit");
@@ -255,7 +267,7 @@ function renderPlayers(room) {
   const pendingAction = room.pendingAction;
   const canResolveAction = pendingAction && pendingAction.actorId === room.selfId;
 
-  for (const player of room.players) {
+  for (const player of room.players.filter((entry) => entry.connected)) {
     const card = document.createElement("article");
     card.className = `player-card ${player.id === room.selfId ? "self" : ""} ${player.id === room.turnId ? "turn" : ""} ${player.status}`;
 
@@ -292,7 +304,7 @@ function renderPlayers(room) {
 
     const message = document.createElement("p");
     message.className = "player-message";
-    message.textContent = player.message || (player.connected ? " " : "연결이 끊어졌습니다.");
+    message.textContent = player.message || " ";
 
     card.append(head, cards);
 

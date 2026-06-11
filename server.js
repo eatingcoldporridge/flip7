@@ -158,6 +158,18 @@ function activePlayers(room) {
   return room.players.filter((player) => player.connected && player.status === "active");
 }
 
+function connectedPlayers(room) {
+  return room.players.filter((player) => player.connected);
+}
+
+function assignHostIfNeeded(room) {
+  if (connectedPlayers(room).some((player) => player.id === room.hostId)) return;
+  const nextHost = connectedPlayers(room)[0];
+  if (!nextHost) return;
+  room.hostId = nextHost.id;
+  pushLog(room, `${nextHost.name}님이 새 방장이 되었습니다.`);
+}
+
 function currentPlayer(room) {
   return room.players[room.turnIndex] || null;
 }
@@ -605,7 +617,7 @@ function handleMessage(ws, raw) {
       sendError(ws, "이미 시작된 방입니다.");
       return;
     }
-    if (room.players.length >= 8) {
+    if (connectedPlayers(room).length >= 8) {
       sendError(ws, "방이 가득 찼습니다.");
       return;
     }
@@ -765,6 +777,7 @@ wss.on("connection", (ws) => {
         rooms.delete(room.code);
         return;
       }
+      assignHostIfNeeded(room);
       normalizeTurn(room);
       checkRoundEnd(room);
       broadcast(room);
