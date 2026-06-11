@@ -280,7 +280,10 @@ function renderPlayers(room) {
     for (const owned of player.cards) {
       const item = document.createElement("span");
       item.className = `card ${cardClass(owned)}`;
-      item.textContent = cardLabel(owned);
+      const label = cardLabel(owned);
+      item.dataset.label = label;
+      item.setAttribute("aria-label", label);
+      item.textContent = owned.kind === "action" ? "" : label;
       cards.appendChild(item);
     }
 

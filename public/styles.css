@@ -747,9 +747,9 @@ p {
 }
 
 .card.action {
-  align-items: center;
-  justify-items: center;
+  position: relative;
   padding: 4px;
+  color: transparent;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     linear-gradient(160deg, #ff8a8a, var(--red));
@@ -763,7 +763,25 @@ p {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
+.card.action::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  right: 4px;
+  transform: translateY(-50%);
+  display: block;
+  color: var(--action-label-color, #210d12);
+  font-size: 9px;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  white-space: normal;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.84);
+}
+
 .card.action.freeze {
+  --action-label-color: #071a33;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/FREEZE.svg");
@@ -772,6 +790,7 @@ p {
 }
 
 .card.action.flip3 {
+  --action-label-color: #210d12;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/FLIP3.svg");
@@ -780,6 +799,7 @@ p {
 }
 
 .card.action.second-chance {
+  --action-label-color: #2d2410;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.3)),
     url("./assets/SECONDE_CHANCE.svg");
@@ -800,37 +820,35 @@ p {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: max(22px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
   z-index: 2147483647;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 34px;
-  width: min(760px, calc(100vw - 32px));
-  border: 0;
-  border-radius: 16px;
-  padding: 28px 32px;
+  display: block;
+  width: auto;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  padding: 12px 22px;
   color: var(--ink);
   background: #ffffff;
-  box-shadow: 0 22px 70px rgba(15, 35, 55, 0.3);
-  font-size: clamp(20px, 3vw, 34px);
-  font-weight: 500;
-  text-align: left;
+  box-shadow: 0 14px 34px rgba(33, 67, 99, 0.22);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
 }
 
 .toast::after {
-  content: "확인";
-  flex: 0 0 auto;
-  color: #0094ff;
-  font-weight: 500;
+  content: none;
 }
 
 .toast:hover:not(:disabled) {
-  transform: translate(-50%, -1px);
-  box-shadow: 0 26px 78px rgba(15, 35, 55, 0.34);
+  transform: translate(-50%, calc(-50% - 1px));
+  box-shadow: 0 18px 40px rgba(33, 67, 99, 0.26);
 }
 
 .toast.hidden {
@@ -905,11 +923,9 @@ p {
   }
 
   .toast {
-    bottom: max(14px, env(safe-area-inset-bottom));
-    width: calc(100vw - 24px);
-    gap: 18px;
-    border-radius: 14px;
-    padding: 18px 20px;
-    font-size: 20px;
+    max-width: calc(100vw - 24px);
+    padding: 11px 18px;
+    font-size: 14px;
+    white-space: normal;
   }
 }
