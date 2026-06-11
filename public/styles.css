@@ -856,6 +856,740 @@ p {
   background: linear-gradient(180deg, #ff7878, var(--red-deep));
 }
 
+.excel-chrome {
+  display: none;
+}
+
+.excel-skin-toggle {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 2147483601;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: linear-gradient(180deg, #32b96b, #107c41);
+  box-shadow: 0 16px 34px rgba(11, 84, 47, 0.28);
+}
+
+.excel-skin-toggle svg {
+  width: 32px;
+  height: 32px;
+}
+
+.excel-sheet {
+  fill: #ffffff;
+}
+
+.excel-fold {
+  fill: #d8f2e3;
+}
+
+.excel-panel {
+  fill: #107c41;
+}
+
+.excel-x {
+  fill: none;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+
+.excel-skin-toggle:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(11, 84, 47, 0.36);
+}
+
+.excel-skin-toggle.active {
+  background: linear-gradient(180deg, #3b3b3b, #111111);
+}
+
+body.excel-skin {
+  min-width: 980px;
+  min-height: 1120px;
+  overflow: auto;
+  background:
+    linear-gradient(#dedede 1px, transparent 1px) 32px 244px / 72px 22px,
+    linear-gradient(90deg, #dedede 1px, transparent 1px) 32px 244px / 72px 22px,
+    #ffffff;
+  color: #000000;
+  font-family: "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
+}
+
+body.excel-skin .excel-chrome {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  display: block;
+  color: #ffffff;
+  background: #071a15;
+  box-shadow: 0 2px 0 #000000;
+}
+
+body.excel-skin .excel-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 42px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+body.excel-skin .excel-titlebar strong {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+}
+
+body.excel-skin .excel-app-icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #107c41;
+  font-size: 10px;
+  font-weight: 1000;
+}
+
+body.excel-skin .excel-switch,
+body.excel-skin .excel-search {
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 3px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.excel-skin .excel-search {
+  min-width: 330px;
+  color: #bcbcbc;
+}
+
+body.excel-skin .excel-tabs {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+  height: 34px;
+  padding: 0 16px 8px;
+  border-bottom: 1px solid #273832;
+  font-size: 14px;
+}
+
+body.excel-skin .excel-tabs span:nth-child(2) {
+  border-bottom: 2px solid #ffffff;
+}
+
+body.excel-skin .excel-ribbon {
+  display: grid;
+  grid-template-columns: 160px 280px 280px 210px 260px 200px 260px;
+  gap: 0;
+  height: 100px;
+  padding: 8px 6px;
+  overflow: hidden;
+  background: #262626;
+}
+
+body.excel-skin .excel-ribbon div {
+  display: grid;
+  align-content: space-between;
+  border-right: 1px solid #5a5a5a;
+  padding: 8px 14px 4px;
+  color: #f1f1f1;
+  font-size: 13px;
+}
+
+body.excel-skin .excel-ribbon small {
+  color: #d0d0d0;
+  font-size: 11px;
+  text-align: center;
+}
+
+body.excel-skin .excel-formula {
+  display: grid;
+  grid-template-columns: 120px 86px 1fr;
+  gap: 4px;
+  height: 36px;
+  padding: 5px 7px;
+  background: #232323;
+}
+
+body.excel-skin .excel-formula span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #5d6b67;
+  border-radius: 4px;
+  padding: 0 8px;
+  color: #f1f1f1;
+  background: #2d2d2d;
+}
+
+body.excel-skin .excel-columns {
+  display: grid;
+  grid-template-columns: 32px repeat(26, 72px);
+  height: 24px;
+  overflow: hidden;
+  background: #000000;
+}
+
+body.excel-skin .excel-columns span {
+  display: grid;
+  place-items: center;
+  border-right: 1px solid #404040;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+body.excel-skin .app {
+  position: relative;
+  width: max-content;
+  min-width: 980px;
+  margin: 0;
+  padding: 244px 0 72px 32px;
+}
+
+body.excel-skin .app::after {
+  content: "준비    Sheet1    Sheet2    +                                                                                                      100%";
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  height: 30px;
+  border-top: 1px solid #000000;
+  padding: 6px 14px;
+  color: #ffffff;
+  background: #071a15;
+  font-size: 13px;
+  white-space: pre;
+  pointer-events: none;
+}
+
+body.excel-skin button,
+body.excel-skin input {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.excel-skin .excel-skin-toggle {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3b3b3b, #111111);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+}
+
+body.excel-skin .excel-skin-toggle:hover:not(:disabled) {
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.36);
+}
+
+body.excel-skin input:focus {
+  border-color: #107c41;
+  box-shadow: inset 0 0 0 1px #107c41;
+}
+
+body.excel-skin .join-panel,
+body.excel-skin .control-panel,
+body.excel-skin .board,
+body.excel-skin .player-card,
+body.excel-skin .phase-card,
+body.excel-skin .chat-card,
+body.excel-skin .rules-note,
+body.excel-skin .log-card,
+body.excel-skin .join-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.excel-skin .join-panel {
+  width: 720px;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  gap: 0;
+  grid-template-columns: 360px 360px;
+  background: transparent;
+}
+
+body.excel-skin .join-card {
+  display: grid;
+  grid-template-rows: 22px 22px 22px 22px;
+  gap: 0;
+  border: 1px solid #000000;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .join-card + .join-card {
+  margin-left: -1px;
+}
+
+body.excel-skin .join-card div {
+  display: contents;
+}
+
+body.excel-skin .join-card span:first-child {
+  display: grid;
+  place-items: center;
+  grid-column: 1 / -1;
+  border-bottom: 1px solid #d0d0d0;
+  background: #d9d9d9;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+body.excel-skin .join-card h2 {
+  display: grid;
+  place-items: center;
+  grid-column: 1 / -1;
+  margin: 0;
+  border-bottom: 1px solid #d0d0d0;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body.excel-skin .join-card p {
+  display: grid;
+  place-items: center;
+  grid-column: 1 / -1;
+  border-bottom: 1px solid #000000;
+  color: #000000;
+  font-size: 14px;
+}
+
+body.excel-skin .join-card label {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  grid-column: 1 / -1;
+  gap: 0;
+}
+
+body.excel-skin .join-card label span {
+  display: grid;
+  place-items: center start;
+  grid-column: auto;
+  border: 0;
+  border-right: 1px solid #d0d0d0;
+  padding-left: 4px;
+  background: #e5e5e5;
+  font-size: 14px;
+}
+
+body.excel-skin .join-card input {
+  height: 22px;
+  border: 0;
+  padding: 0 4px;
+  background: #ffffff;
+  color: #d92828;
+  font-size: 14px;
+}
+
+body.excel-skin .join-card button {
+  grid-column: 1 / -1;
+  height: 22px;
+  border: 0;
+  border-top: 1px solid #d0d0d0;
+  padding: 0;
+  color: #000000;
+  background: #fff9b8;
+  font-size: 14px;
+}
+
+body.excel-skin .table-shell {
+  grid-template-columns: 216px 448px;
+  gap: 0;
+  margin: 0;
+}
+
+body.excel-skin .control-panel {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body.excel-skin .phase-card {
+  gap: 0;
+  border: 1px solid #000000;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .phase-copy {
+  display: block;
+}
+
+body.excel-skin .room-status {
+  display: grid;
+  grid-template-columns: 72px 72px 72px;
+  gap: 0;
+  height: 22px;
+  border: 0;
+  border-bottom: 1px solid #000000;
+  border-radius: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .room-status span,
+body.excel-skin .room-status strong,
+body.excel-skin .room-status button {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border-right: 1px solid #d0d0d0;
+  padding: 0;
+  background: transparent;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+body.excel-skin .room-status strong {
+  color: #d92828;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+body.excel-skin .room-status button {
+  border: 0;
+  color: #000000;
+}
+
+body.excel-skin .actions {
+  gap: 0;
+}
+
+body.excel-skin .actions button {
+  height: 44px;
+  min-height: 0;
+  margin-top: -1px;
+  border: 1px solid #000000;
+  padding: 0;
+  color: #000000;
+  background: #ffffff;
+  font-size: 14px;
+}
+
+body.excel-skin #hitButton {
+  background: #ffffff;
+}
+
+body.excel-skin #stayButton {
+  background: #ffffff;
+}
+
+body.excel-skin .actions button:disabled {
+  color: #777777;
+  background: #eeeeee;
+  opacity: 1;
+}
+
+body.excel-skin .chat-card,
+body.excel-skin .rules-note,
+body.excel-skin .log-card {
+  width: 216px;
+  border: 1px solid #000000;
+  border-top: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .info-toggle summary {
+  display: grid;
+  place-items: center;
+  min-height: 22px;
+  background: #000000;
+  color: #ffffff;
+}
+
+body.excel-skin .info-toggle summary span {
+  color: #ffffff;
+  font-size: 11px;
+}
+
+body.excel-skin .info-toggle summary::after {
+  content: "-";
+  position: static;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+}
+
+body.excel-skin .chat-list {
+  min-height: 88px;
+  max-height: 88px;
+  border-radius: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .chat-message,
+body.excel-skin .chat-empty {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0;
+  min-height: 22px;
+}
+
+body.excel-skin .chat-message strong,
+body.excel-skin .chat-message p,
+body.excel-skin .chat-empty {
+  border-right: 1px solid #dedede;
+  border-bottom: 1px solid #dedede;
+  border-radius: 0;
+  padding: 2px 4px;
+  background: transparent;
+  box-shadow: none;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body.excel-skin .chat-message.self {
+  justify-items: stretch;
+}
+
+body.excel-skin .chat-form {
+  grid-template-columns: 1fr 44px;
+  gap: 0;
+}
+
+body.excel-skin .chat-form input,
+body.excel-skin #chatSendButton {
+  height: 22px;
+  min-width: 0;
+  border: 1px solid #000000;
+  border-left: 0;
+  border-bottom: 0;
+  padding: 0 4px;
+  background: #ffffff;
+  color: #000000;
+}
+
+body.excel-skin #chatSendButton svg {
+  display: none;
+}
+
+body.excel-skin #chatSendButton::before {
+  content: "전송";
+}
+
+body.excel-skin .emoji-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding: 0;
+}
+
+body.excel-skin .emoji-row button {
+  width: auto;
+  height: 22px;
+  border-radius: 0;
+  border-right: 1px solid #dedede;
+  border-bottom: 1px solid #000000;
+  background: #ffffff;
+  font-size: 14px;
+}
+
+body.excel-skin .rules-note p,
+body.excel-skin .log-card ol {
+  margin: 0;
+  padding: 0 4px;
+  color: #000000;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+body.excel-skin .log-card ol {
+  list-style-position: inside;
+}
+
+body.excel-skin .board {
+  min-height: 484px;
+  border: 1px solid #000000;
+  border-left: 0;
+  padding: 0;
+  background: rgba(217, 217, 217, 0.88);
+}
+
+body.excel-skin .deck-card {
+  display: grid;
+  grid-template-columns: 72px 72px 72px;
+  min-width: 216px;
+  gap: 0;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #000000;
+  border-radius: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .deck-card span,
+body.excel-skin .deck-card strong,
+body.excel-skin .deck-card small {
+  display: grid;
+  place-items: center;
+  min-height: 22px;
+  border-right: 1px solid #dedede;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+body.excel-skin .deck-card strong {
+  color: #d92828;
+}
+
+body.excel-skin .players-grid {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+body.excel-skin .player-card {
+  min-height: 110px;
+  gap: 0;
+  border: 0;
+  border-bottom: 1px solid #000000;
+  padding: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .player-card.turn {
+  box-shadow: inset 0 0 0 2px #107c41;
+}
+
+body.excel-skin .player-card.busted {
+  background: #fff2f2;
+}
+
+body.excel-skin .player-head {
+  display: grid;
+  grid-template-columns: 144px 1fr;
+  gap: 0;
+  background: #ffffff;
+}
+
+body.excel-skin .player-head > div:first-child {
+  display: grid;
+  grid-template-columns: 72px 72px;
+}
+
+body.excel-skin .player-head strong,
+body.excel-skin .player-head span,
+body.excel-skin .round-score span,
+body.excel-skin .score span,
+body.excel-skin .round-score strong,
+body.excel-skin .score b {
+  display: grid;
+  place-items: center;
+  min-height: 22px;
+  border-right: 1px solid #dedede;
+  border-bottom: 1px solid #dedede;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body.excel-skin .player-metrics {
+  display: grid;
+  grid-template-columns: 144px 72px;
+  gap: 0;
+}
+
+body.excel-skin .round-score,
+body.excel-skin .score {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  text-align: center;
+}
+
+body.excel-skin .cards {
+  display: grid;
+  grid-template-columns: repeat(6, 72px);
+  gap: 0;
+  min-height: 44px;
+}
+
+body.excel-skin .card {
+  width: 72px;
+  height: 22px;
+  border: 0;
+  border-right: 1px solid #dedede;
+  border-bottom: 1px solid #dedede;
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: none;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body.excel-skin .card.action {
+  color: transparent;
+  background: #ffffff;
+}
+
+body.excel-skin .card.action::after {
+  left: 0;
+  right: 0;
+  color: #000000;
+  font-size: 12px;
+  font-weight: 400;
+  text-shadow: none;
+}
+
+body.excel-skin .card.action.freeze,
+body.excel-skin .card.action.flip3,
+body.excel-skin .card.action.second-chance {
+  background-image: none;
+}
+
+body.excel-skin .player-message {
+  min-height: 22px;
+  margin: 0;
+  border-bottom: 1px solid #dedede;
+  padding: 2px 4px;
+  color: #000000;
+  font-size: 13px;
+  text-align: center;
+}
+
+body.excel-skin .target-button {
+  height: 22px;
+  border: 1px solid #d92828;
+  color: #000000;
+  background: #ffffff;
+}
+
+body.excel-skin .toast {
+  border-radius: 0;
+  border-color: #d92828;
+  background: #ffffff;
+  box-shadow: none;
+  font-weight: 400;
+}
+
 .toast {
   position: fixed;
   left: 50%;

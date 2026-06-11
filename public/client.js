@@ -26,6 +26,7 @@ const ui = {
   chatSendButton: document.getElementById("chatSendButton"),
   emojiRow: document.getElementById("emojiRow"),
   emojiButtons: [...document.querySelectorAll("#emojiRow button")],
+  excelSkinButton: document.getElementById("excelSkinButton"),
   toast: document.getElementById("toast"),
 };
 
@@ -103,6 +104,14 @@ function playerName() {
   const value = ui.playerNameInput.value.trim();
   if (value) localStorage.setItem("flip7PlayerName", value);
   return value || localStorage.getItem("flip7PlayerName") || `Player ${Math.floor(Math.random() * 90 + 10)}`;
+}
+
+function setExcelSkin(enabled) {
+  document.body.classList.toggle("excel-skin", enabled);
+  ui.excelSkinButton.classList.toggle("active", enabled);
+  ui.excelSkinButton.setAttribute("aria-pressed", String(enabled));
+  ui.excelSkinButton.title = enabled ? "기본 스킨으로 전환" : "Excel 스킨으로 전환";
+  localStorage.setItem("flip7ExcelSkin", enabled ? "1" : "0");
 }
 
 function phaseText(phase) {
@@ -183,9 +192,11 @@ function render() {
 
   if (hasRoom && room.phase === "gameEnd") {
     const key = `${room.code}:${room.round}:${room.winnerId}`;
-    if (room.winnerId === room.selfId && state.victoryToastKey !== key) {
+    if (state.victoryToastKey !== key) {
       state.victoryToastKey = key;
-      showToast("👑이겼습니다!", { duration: 3000, force: true });
+      const winner = room.players.find((player) => player.id === room.winnerId);
+      const message = room.winnerId === room.selfId ? "👑이겼습니다!" : `${winner?.name || "상대"}님이 이겼습니다`;
+      showToast(message, { duration: 3000, force: true });
     }
   } else {
     state.victoryToastKey = "";
@@ -485,6 +496,7 @@ function handleTurnAction(action) {
 }
 
 ui.playerNameInput.value = localStorage.getItem("flip7PlayerName") || "";
+setExcelSkin(localStorage.getItem("flip7ExcelSkin") === "1");
 
 ui.createRoomButton.addEventListener("click", () => send("createRoom", { name: playerName() }));
 ui.joinRoomButton.addEventListener("click", () => send("joinRoom", {
@@ -496,6 +508,7 @@ ui.hitButton.addEventListener("click", () => handleTurnAction("hit"));
 ui.stayButton.addEventListener("click", () => handleTurnAction("stay"));
 ui.nextRoundButton.addEventListener("click", () => send("nextRound"));
 ui.lobbyButton.addEventListener("click", () => send("returnLobby"));
+ui.excelSkinButton.addEventListener("click", () => setExcelSkin(!document.body.classList.contains("excel-skin")));
 ui.toast.addEventListener("click", hideToast);
 ui.chatForm.addEventListener("submit", (event) => {
   event.preventDefault();

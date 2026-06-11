@@ -143,6 +143,7 @@ function createRoom(hostId, hostName) {
     winnerId: null,
     pendingAction: null,
     pendingActions: [],
+    pendingForcedDraws: [],
     chat: [],
     log: ["방이 생성되었습니다."],
   };
@@ -172,6 +173,11 @@ function assignHostIfNeeded(room) {
 
 function currentPlayer(room) {
   return room.players[room.turnIndex] || null;
+}
+
+function setTurnToPlayer(room, playerId) {
+  const index = room.players.findIndex((player) => player.id === playerId);
+  if (index >= 0) room.turnIndex = index;
 }
 
 function currentPlayerIsActive(room) {
@@ -244,6 +250,7 @@ function queueFlip3Action(room, player, source = "turn") {
 function clearPendingActions(room) {
   room.pendingAction = null;
   room.pendingActions = [];
+  room.pendingForcedDraws = [];
 }
 
 function calculateRoundScore(player) {
@@ -440,18 +447,68 @@ function checkGameEnd(room) {
   }
 }
 
-function continueAfterPendingAction(room, pending, roundBeforeAction) {
-  activateNextPendingAction(room);
+function resumeForcedDraw(room) {
+  const context = room.pendingForcedDraws.pop();
+  if (!context) return false;
+  runForcedDraw(room, context);
+  return true;
+}
+
+function completePendingAction(room, pending, roundBeforeAction) {
   if (room.pendingAction) return;
   if (room.phase !== "playing") return;
   if (room.round !== roundBeforeAction) return;
 
+  if (resumeForcedDraw(room)) return;
+
+  activateNextPendingAction(room);
+  if (room.pendingAction) return;
+
   if (pending.source === "turn") {
+    setTurnToPlayer(room, pending.actorId);
     advanceTurn(room);
   } else {
     normalizeTurn(room);
   }
   checkRoundEnd(room);
+}
+
+function continueAfterPendingAction(room, pending, roundBeforeAction) {
+  completePendingAction(room, pending, roundBeforeAction);
+}
+
+function runForcedDraw(room, context) {
+  const player = findPlayer(room, context.playerId);
+
+  while (
+    context.remaining > 0 &&
+    room.phase === "playing" &&
+    room.round === context.roundBeforeAction &&
+    player?.connected &&
+    player.status === "active" &&
+    !room.pendingAction
+  ) {
+    context.remaining -= 1;
+    const card = drawCard(room);
+    if (!card) break;
+    giveCard(room, player, card, { forced: true });
+  }
+
+  if (room.pendingAction) {
+    room.pendingForcedDraws.push(context);
+    return;
+  }
+
+  completePendingAction(room, context.pending, context.roundBeforeAction);
+}
+
+function giveForcedCards(room, player, count, pending, roundBeforeAction) {
+  runForcedDraw(room, {
+    playerId: player.id,
+    remaining: count,
+    pending,
+    roundBeforeAction,
+  });
 }
 
 function resolveFreeze(room, actorId, targetId) {
@@ -488,11 +545,7 @@ function resolveFlip3(room, actorId, targetId) {
   target.message = `${actor.name}님의 Flip 3: 카드 3장을 받습니다.`;
   pushLog(room, `${actor.name}님이 ${target.name}님에게 Flip 3를 사용했습니다.`);
 
-  for (let i = 0; i < 3 && room.phase === "playing" && target.status === "active"; i += 1) {
-    giveCard(room, target, drawCard(room), { forced: true });
-  }
-
-  continueAfterPendingAction(room, pending, roundBeforeAction);
+  giveForcedCards(room, target, 3, pending, roundBeforeAction);
   return "";
 }
 
@@ -771,6 +824,9 @@ wss.on("connection", (ws) => {
       if (room.pendingAction?.actorId === ws._socketId) {
         room.pendingAction = null;
         activateNextPendingAction(room);
+      }
+      if (!room.pendingAction && room.pendingForcedDraws.length > 0) {
+        resumeForcedDraw(room);
       }
       pushLog(room, `${player.name}님이 연결을 종료했습니다.`);
       if (room.players.every((member) => !member.connected)) {
