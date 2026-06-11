@@ -39,8 +39,6 @@ const state = {
   roundEndSnackRound: 0,
 };
 
-const quickEmojis = new Set(["🤑", "🥳", "😭", "🙄", "🤭", "😆", "☠️", "☠"]);
-
 function websocketUrl() {
   const configuredUrl = String(window.FLIP7_WS_URL || "").trim();
   if (configuredUrl) return configuredUrl;
@@ -74,6 +72,11 @@ function connect() {
       state.room = message.room;
       state.selfId = message.room.selfId || state.selfId;
       render();
+      return;
+    }
+
+    if (message.type === "emojiBurst") {
+      playEmojiBurst(message.emoji, message.seed);
       return;
     }
 
@@ -331,8 +334,7 @@ function renderChat(messages, selfId) {
   for (const message of messages) {
     const item = document.createElement("article");
     const textValue = String(message.text || "").trim();
-    const isEmojiOnly = quickEmojis.has(textValue);
-    item.className = `chat-message ${message.playerId === selfId ? "self" : ""} ${isEmojiOnly ? "emoji-only" : ""}`;
+    item.className = `chat-message ${message.playerId === selfId ? "self" : ""}`;
 
     const name = document.createElement("strong");
     name.textContent = message.name;
@@ -353,6 +355,68 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function seededRandom(seed) {
+  let value = Number(seed) || Date.now();
+  return () => {
+    value |= 0;
+    value = (value + 0x6d2b79f5) | 0;
+    let next = Math.imul(value ^ (value >>> 15), 1 | value);
+    next ^= next + Math.imul(next ^ (next >>> 7), 61 | next);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function emojiBurstLayer() {
+  let layer = document.querySelector(".emoji-burst-layer");
+  if (!layer) {
+    layer = document.createElement("div");
+    layer.className = "emoji-burst-layer";
+    document.body.appendChild(layer);
+  }
+  return layer;
+}
+
+function playEmojiBurst(emoji, seed = Date.now()) {
+  if (!emoji) return;
+  const button = ui.emojiButtons.find((item) => item.dataset.emoji === emoji);
+  const anchor = button || ui.emojiRow || ui.chatForm;
+  if (!anchor) return;
+
+  const rect = anchor.getBoundingClientRect();
+  const random = seededRandom(seed);
+  const layer = emojiBurstLayer();
+  const count = 6 + Math.floor(random() * 2);
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + rect.height / 2;
+
+  for (let index = 0; index < count; index += 1) {
+    const particle = document.createElement("span");
+    particle.className = "emoji-burst-particle";
+    particle.textContent = emoji;
+
+    const drift = (random() - 0.5) * 74;
+    const rise = -(96 + random() * 150);
+    const duration = 900 + random() * 850;
+    const delay = random() * 180;
+    const startScale = 0.58 + random() * 0.78;
+    const midScale = startScale + 0.18 + random() * 0.44;
+    const x = startX + (random() - 0.5) * 28;
+    const y = startY - 4 - random() * 16;
+
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty("--emoji-drift", `${drift}px`);
+    particle.style.setProperty("--emoji-rise", `${rise}px`);
+    particle.style.setProperty("--emoji-start-scale", startScale.toFixed(2));
+    particle.style.setProperty("--emoji-mid-scale", midScale.toFixed(2));
+    particle.style.animationDuration = `${duration}ms`;
+    particle.style.animationDelay = `${delay}ms`;
+
+    layer.appendChild(particle);
+    particle.addEventListener("animationend", () => particle.remove(), { once: true });
+  }
 }
 
 function hideToast() {
@@ -432,7 +496,7 @@ ui.chatForm.addEventListener("submit", (event) => {
 ui.emojiRow.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-emoji]");
   if (!button || button.disabled) return;
-  send("sendChat", { text: button.dataset.emoji });
+  send("emojiBurst", { emoji: button.dataset.emoji });
 });
 ui.copyRoomButton.addEventListener("click", async () => {
   if (!state.room) return;

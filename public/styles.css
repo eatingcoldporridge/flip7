@@ -426,15 +426,6 @@ p {
   background: #e8f8ff;
 }
 
-.chat-message.emoji-only p,
-.chat-message.self.emoji-only p {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
-  font-size: 39px;
-  line-height: 1;
-}
-
 .chat-empty {
   color: var(--muted);
   background: transparent;
@@ -525,6 +516,55 @@ p {
   background: transparent;
   box-shadow: none;
   opacity: 0.38;
+}
+
+.emoji-burst-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483600;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.emoji-burst-particle {
+  position: fixed;
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(var(--emoji-start-scale, 1));
+  transform-origin: center;
+  filter: drop-shadow(0 8px 10px rgba(33, 67, 99, 0.18));
+  opacity: 0;
+  animation-name: emojiBurstFloat;
+  animation-timing-function: cubic-bezier(0.18, 0.72, 0.18, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes emojiBurstFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(var(--emoji-start-scale, 1));
+  }
+
+  76% {
+    opacity: 1;
+    transform:
+      translate(calc(-50% + var(--emoji-drift, 0px)), calc(-50% + var(--emoji-rise, -150px)))
+      scale(var(--emoji-mid-scale, 1.2));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(calc(-50% + var(--emoji-drift, 0px)), calc(-50% + var(--emoji-rise, -150px)))
+      scale(0);
+  }
 }
 
 .info-toggle {

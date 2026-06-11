@@ -8,6 +8,7 @@ const PORT = Number(process.env.PORT || 3007);
 const PUBLIC_DIR = path.join(__dirname, "public");
 const WINNING_SCORE = 200;
 const ROOM_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const QUICK_EMOJIS = new Set(["🤑", "🥳", "😭", "🙄", "🤭", "😆", "☠️", "☠"]);
 
 const rooms = new Map();
 const clients = new Map();
@@ -551,6 +552,13 @@ function broadcast(room) {
   }
 }
 
+function broadcastEvent(room, type, payload = {}) {
+  for (const client of clients.values()) {
+    if (client.roomCode !== room.code) continue;
+    send(client.ws, type, payload);
+  }
+}
+
 function sendError(ws, message) {
   send(ws, "errorMessage", { message });
 }
@@ -659,6 +667,22 @@ function handleMessage(ws, raw) {
     if (pushChat(room, player, message.text)) {
       broadcast(room);
     }
+    return;
+  }
+
+  if (message.type === "emojiBurst") {
+    const player = findPlayer(room, client.id);
+    const emoji = String(message.emoji || "").trim();
+    if (!player || !player.connected || !QUICK_EMOJIS.has(emoji)) return;
+
+    broadcastEvent(room, "emojiBurst", {
+      id: id("emoji_"),
+      playerId: player.id,
+      name: player.name,
+      emoji,
+      seed: crypto.randomInt(1, 2147483647),
+      at: Date.now(),
+    });
     return;
   }
 
