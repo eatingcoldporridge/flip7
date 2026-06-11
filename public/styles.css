@@ -1288,11 +1288,12 @@ body.excel-skin .join-panel {
 
 body.excel-skin .join-card {
   display: grid;
-  grid-template-rows: 22px 22px 22px 32px 28px;
+  grid-template-rows: 22px 22px 22px 42px 30px;
   gap: 0;
   border: 1px solid #000000;
   padding: 0;
   background: #ffffff;
+  overflow: visible;
 }
 
 body.excel-skin .join-card + .join-card {
@@ -1338,35 +1339,45 @@ body.excel-skin .join-card p {
 body.excel-skin .join-card label {
   display: grid;
   grid-template-columns: 88px minmax(0, 1fr);
+  align-items: stretch;
   grid-column: 1 / -1;
   gap: 0;
+  min-height: 42px;
+  overflow: visible;
 }
 
-body.excel-skin .join-card label span {
+body.excel-skin .join-card label > span:first-child {
   display: grid;
   place-items: center start;
-  grid-column: auto;
+  grid-column: 1;
   border: 0;
   border-right: 1px solid #d0d0d0;
+  border-bottom: 1px solid #d0d0d0;
   padding-left: 4px;
   background: #e5e5e5;
+  color: #000000;
   font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
 }
 
 body.excel-skin .join-card input {
-  height: 32px;
+  grid-column: 2;
+  height: 42px;
   min-width: 0;
   border: 0;
+  border-bottom: 1px solid #d0d0d0;
   padding: 0 10px;
   background: #ffffff;
   color: #d92828;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
+  line-height: 42px;
 }
 
 body.excel-skin .join-card button {
   grid-column: 1 / -1;
-  height: 28px;
+  height: 30px;
   border: 0;
   border-top: 1px solid #d0d0d0;
   padding: 0;
@@ -1444,6 +1455,8 @@ body.excel-skin .room-status button {
 
 body.excel-skin .actions {
   gap: 0;
+  padding-top: 12px;
+  border-top: 1px solid #d0d0d0;
 }
 
 body.excel-skin .actions button {
